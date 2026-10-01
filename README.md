@@ -61,10 +61,17 @@ Le menu latéral donne accès aux espaces suivants :
 Les cartes de statistiques et les raccourcis du tableau de bord sont
 cliquables. Utilisez l’icône d’actualisation pour recharger les données.
 
+Les administrateurs disposent aussi d’un aperçu des enseignants, des nouveaux
+comptes, des cours publiés, des paiements en attente et des inscriptions payées,
+ainsi que des dernières inscriptions de comptes. Les actions ouvrent directement
+la gestion des utilisateurs, des cours ou des paiements.
+
 L’invitation d’un administrateur nécessite le déploiement de la fonction
 Supabase `invite-admin` et la configuration de l’envoi d’e-mails dans Supabase
 Auth. Les revenus affichés proviennent des montants enregistrés au paiement ;
 les anciens paiements sans montant conservé sont signalés séparément.
+Les changements de rôle passent par un service réservé aux administrateurs ;
+le dernier administrateur et le rôle de son propre compte sont protégés.
 
 ### Messages étudiant-formateur
 

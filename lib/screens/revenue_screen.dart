@@ -99,6 +99,15 @@ class _RevenueScreenState extends State<RevenueScreen> {
                 icon: Icons.receipt_long_outlined,
                 color: const Color(0xFF2563EB),
               ),
+              const SizedBox(height: 16),
+              _MetricCard(
+                title: 'Pending checkouts',
+                value: '${summary.pendingEnrollments}',
+                subtitle:
+                    'Awaiting payment confirmation; not counted as revenue',
+                icon: Icons.pending_actions_outlined,
+                color: const Color(0xFFD97706),
+              ),
               if (summary.enrollmentsWithoutAmount > 0) ...[
                 const SizedBox(height: 16),
                 _MetricCard(

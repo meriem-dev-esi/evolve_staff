@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UsersManagementScreen extends StatefulWidget {
-  const UsersManagementScreen({super.key});
+  final String initialRoleFilter;
+
+  const UsersManagementScreen({super.key, this.initialRoleFilter = 'all'});
 
   @override
   State<UsersManagementScreen> createState() => _UsersManagementScreenState();
@@ -20,6 +22,7 @@ class _UsersManagementScreenState extends State<UsersManagementScreen> {
   @override
   void initState() {
     super.initState();
+    roleFilter = widget.initialRoleFilter;
     loadUsers();
   }
 
@@ -169,10 +172,10 @@ class _UsersManagementScreenState extends State<UsersManagementScreen> {
               ),
               onPressed: () async {
                 try {
-                  await supabase
-                      .from('profiles')
-                      .update({'role': newRole})
-                      .eq('id', userId);
+                  await supabase.functions.invoke(
+                    'admin-update-user-role',
+                    body: {'user_id': userId, 'role': newRole},
+                  );
                   if (ctx.mounted) Navigator.pop(ctx, true);
                 } catch (e) {
                   if (ctx.mounted) {
@@ -232,21 +235,29 @@ class _UsersManagementScreenState extends State<UsersManagementScreen> {
           ? const Center(child: CircularProgressIndicator())
           : error != null
           ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Error: $error',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: loadUsers,
-                    child: const Text('Retry'),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Unable to load users: $error',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: loading ? null : loadUsers,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
               ),
             )
           : Padding(

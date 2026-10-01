@@ -3,11 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class RevenueSummary {
   final int totalMinorUnits;
   final int paidEnrollments;
+  final int pendingEnrollments;
   final int enrollmentsWithoutAmount;
 
   const RevenueSummary({
     required this.totalMinorUnits,
     required this.paidEnrollments,
+    required this.pendingEnrollments,
     required this.enrollmentsWithoutAmount,
   });
 
@@ -29,9 +31,11 @@ class RevenueService {
     final data = response.data as Map<String, dynamic>;
     final totalMinorUnits = data['total_minor_units'];
     final paidEnrollments = data['paid_enrollments'];
+    final pendingEnrollments = data['pending_enrollments'];
     final enrollmentsWithoutAmount = data['enrollments_without_amount'];
     if (totalMinorUnits is! num ||
         paidEnrollments is! num ||
+        pendingEnrollments is! num ||
         enrollmentsWithoutAmount is! num) {
       throw const FormatException('Invalid revenue response.');
     }
@@ -39,6 +43,7 @@ class RevenueService {
     return RevenueSummary(
       totalMinorUnits: totalMinorUnits.toInt(),
       paidEnrollments: paidEnrollments.toInt(),
+      pendingEnrollments: pendingEnrollments.toInt(),
       enrollmentsWithoutAmount: enrollmentsWithoutAmount.toInt(),
     );
   }

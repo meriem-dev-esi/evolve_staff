@@ -12,6 +12,7 @@ import 'users_management_screen.dart';
 import 'revenue_screen.dart';
 import 'messages_screen.dart';
 import 'login_screen.dart';
+import '../services/admin_dashboard_service.dart';
 import '../services/analytics_service.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -38,6 +39,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool loading = true;
   String? errorMessage;
   List<Map<String, dynamic>> recentActivities = [];
+  AdminDashboardOverview? adminOverview;
 
   @override
   void initState() {
@@ -48,20 +50,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadDashboardData() async {
     setState(() {
       loading = true;
+      errorMessage = null;
     });
     try {
-      final stats = await AnalyticsService.fetchStats(widget.role);
-
-      // Fetch recent courses as recent activity
+      final overview = widget.role == 'admin'
+          ? await AdminDashboardOverview.fetch()
+          : null;
+      final stats = overview == null
+          ? await AnalyticsService.fetchStats(widget.role)
+          : {
+              'courses': overview.courses,
+              'students': overview.students,
+              'formations': overview.formations,
+              'lessons': overview.lessons,
+            };
       List<Map<String, dynamic>> recents = [];
-      try {
+      if (overview != null) {
+        recents = overview.recentCourses;
+      } else {
         final res = await supabase
             .from('courses')
             .select('id, title, domain, created_at')
             .order('created_at', ascending: false)
             .limit(5);
         recents = List<Map<String, dynamic>>.from(res);
-      } catch (_) {}
+      }
 
       if (!mounted) return;
       setState(() {
@@ -70,12 +83,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         formations = stats['formations'] ?? 0;
         lessons = stats['lessons'] ?? 0;
         recentActivities = recents;
+        adminOverview = overview;
         errorMessage = null;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         errorMessage = e.toString().replaceFirst('Exception: ', '');
+        adminOverview = null;
       });
     } finally {
       if (mounted) {
@@ -194,6 +209,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
+  }
+
+  Future<void> _openUsers({String initialRoleFilter = 'all'}) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            UsersManagementScreen(initialRoleFilter: initialRoleFilter),
+      ),
+    );
+    if (mounted) await _loadDashboardData();
+  }
+
+  Future<void> _openRevenue() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RevenueScreen()),
+    );
+    if (mounted) await _loadDashboardData();
   }
 
   void _showStatsOverview() {
@@ -326,9 +360,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   loading
                       ? const Center(child: CircularProgressIndicator())
                       : errorMessage != null
-                      ? Text(
-                          'Error loading stats: $errorMessage',
-                          style: const TextStyle(color: Colors.red),
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Unable to load dashboard: $errorMessage',
+                                style: const TextStyle(color: Colors.red),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              OutlinedButton.icon(
+                                onPressed: loading ? null : _loadDashboardData,
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Retry'),
+                              ),
+                            ],
+                          ),
                         )
                       : LayoutBuilder(
                           builder: (context, constraints) {
@@ -392,6 +440,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             );
                           },
                         ),
+                  if (isAdmin && adminOverview != null) ...[
+                    const SizedBox(height: 36),
+                    _buildAdminOverview(adminOverview!),
+                  ],
                   const SizedBox(height: 36),
 
                   // Quick Actions
@@ -497,12 +549,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   item['title']?.toString() ?? 'Course';
                               final domain =
                                   item['domain']?.toString() ?? 'General';
-                              final dateStr = item['created_at'] != null
-                                  ? item['created_at'].toString().substring(
-                                      0,
-                                      10,
-                                    )
-                                  : '';
+                              final dateStr = _formatActivityDate(
+                                item['created_at'],
+                              );
+                              final published = item['is_published'] == true;
 
                               return ListTile(
                                 leading: Container(
@@ -522,7 +572,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                subtitle: Text(domain),
+                                subtitle: Text(
+                                  isAdmin
+                                      ? '$domain · ${published ? 'Published' : 'Draft'}'
+                                      : domain,
+                                ),
                                 trailing: Text(
                                   dateStr,
                                   style: const TextStyle(
@@ -541,6 +595,250 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildAdminOverview(AdminDashboardOverview overview) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Admin overview',
+          style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Platform health, account activity, and items that may need attention.',
+          style: TextStyle(color: Colors.grey),
+        ),
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 1100
+                ? 3
+                : constraints.maxWidth >= 650
+                ? 2
+                : 1;
+            return GridView.count(
+              crossAxisCount: columns,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: columns == 1
+                  ? 3.4
+                  : columns == 2
+                  ? 2.2
+                  : 1.85,
+              children: [
+                _adminMetricCard(
+                  title: 'Total users',
+                  value: overview.totalUsers,
+                  subtitle: '${overview.students} students',
+                  icon: Icons.people_outline,
+                  color: const Color(0xFF2563EB),
+                  onTap: () => _openUsers(),
+                ),
+                _adminMetricCard(
+                  title: 'Teachers',
+                  value: overview.teachers,
+                  subtitle: 'Teaching accounts',
+                  icon: Icons.co_present_outlined,
+                  color: const Color(0xFF7C3AED),
+                  onTap: () => _openUsers(initialRoleFilter: 'teacher'),
+                ),
+                _adminMetricCard(
+                  title: 'New accounts · 7 days',
+                  value: overview.newUsersLastSevenDays,
+                  subtitle: '${overview.administrators} administrators',
+                  icon: Icons.person_add_alt_1_outlined,
+                  color: const Color(0xFF0891B2),
+                  onTap: () => _openUsers(),
+                ),
+                _adminMetricCard(
+                  title: 'Pending checkouts',
+                  value: overview.pendingPayments,
+                  subtitle: 'Awaiting payment confirmation',
+                  icon: Icons.pending_actions_outlined,
+                  color: const Color(0xFFD97706),
+                  onTap: _openRevenue,
+                ),
+                _adminMetricCard(
+                  title: 'Published courses',
+                  value: overview.publishedCourses,
+                  subtitle: 'Of ${overview.courses} total courses',
+                  icon: Icons.public_outlined,
+                  color: const Color(0xFF65A30D),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CoursesScreen()),
+                  ),
+                ),
+                _adminMetricCard(
+                  title: 'Paid enrollments',
+                  value: overview.paidEnrollments,
+                  subtitle:
+                      '${overview.lessons} lessons · ${overview.formations} formations',
+                  icon: Icons.receipt_long_outlined,
+                  color: const Color(0xFFDB2777),
+                  onTap: _openRevenue,
+                ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 24),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Recent sign-ups',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _openUsers(),
+                    icon: const Icon(Icons.open_in_new, size: 16),
+                    label: const Text('Manage users'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (overview.recentUsers.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    'No user accounts found.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                )
+              else
+                ...overview.recentUsers.map((user) {
+                  final name = user['full_name']?.toString().trim();
+                  final role = user['role']?.toString() ?? 'student';
+                  final roleLabel = role.isEmpty
+                      ? 'Student'
+                      : '${role[0].toUpperCase()}${role.substring(1)}';
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(
+                        0xFF84CC16,
+                      ).withValues(alpha: 0.15),
+                      foregroundColor: const Color(0xFF4D7C0F),
+                      child: Text(
+                        name != null && name.isNotEmpty
+                            ? name[0].toUpperCase()
+                            : '?',
+                      ),
+                    ),
+                    title: Text(
+                      name == null || name.isEmpty ? 'New user' : name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(roleLabel),
+                    trailing: Text(
+                      _formatActivityDate(user['created_at']),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  );
+                }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _adminMetricCard({
+    required String title,
+    required int value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: color.withValues(alpha: 0.12),
+                foregroundColor: color,
+                child: Icon(icon),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$value',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.black45,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 12,
+                color: Colors.black26,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatActivityDate(dynamic rawDate) {
+    final parsed = DateTime.tryParse(rawDate?.toString() ?? '');
+    if (parsed == null) return 'Date unavailable';
+    final local = parsed.toLocal();
+    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
   }
 
   Widget _buildSidebar(
@@ -664,23 +962,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       context,
                       Icons.manage_accounts_outlined,
                       'Users & Roles',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const UsersManagementScreen(),
-                        ),
-                      ),
+                      onTap: () => _openUsers(),
                     ),
                     _menuItem(
                       context,
                       Icons.payments_outlined,
                       'Revenue',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const RevenueScreen(),
-                        ),
-                      ),
+                      onTap: _openRevenue,
                     ),
                   ],
                 ],
