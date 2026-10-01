@@ -9,6 +9,7 @@ import 'formations_screen.dart';
 import 'student_progress_screen.dart';
 import 'assignments_screen.dart';
 import 'users_management_screen.dart';
+import 'revenue_screen.dart';
 import 'messages_screen.dart';
 import 'login_screen.dart';
 import '../services/analytics_service.dart';
@@ -17,7 +18,11 @@ class DashboardScreen extends StatefulWidget {
   final String role;
   final String fullName;
 
-  const DashboardScreen({super.key, required this.role, required this.fullName});
+  const DashboardScreen({
+    super.key,
+    required this.role,
+    required this.fullName,
+  });
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -86,11 +91,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out from Evolve Staff Portal?'),
+        content: const Text(
+          'Are you sure you want to sign out from Evolve Staff Portal?',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Sign Out'),
           ),
@@ -110,11 +123,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _quickAddLesson() async {
     try {
-      final coursesRes = await supabase.from('courses').select('id, title').order('title', ascending: true);
+      final coursesRes = await supabase
+          .from('courses')
+          .select('id, title')
+          .order('title', ascending: true);
       if (coursesRes.isEmpty) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please create a course before adding lessons.')),
+          const SnackBar(
+            content: Text('Please create a course before adding lessons.'),
+          ),
         );
         return;
       }
@@ -129,14 +147,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
             title: const Text('Select Course for Lesson'),
             content: DropdownButtonFormField<String>(
               value: selectedId,
-              decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Target Course'),
-              items: coursesRes.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['title']?.toString() ?? 'Course'))).toList(),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Target Course',
+              ),
+              items: coursesRes
+                  .map(
+                    (c) => DropdownMenuItem(
+                      value: c['id'].toString(),
+                      child: Text(c['title']?.toString() ?? 'Course'),
+                    ),
+                  )
+                  .toList(),
               onChanged: (v) => setDialogState(() => selectedId = v!),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF84CC16), foregroundColor: Colors.black),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF84CC16),
+                  foregroundColor: Colors.black,
+                ),
                 onPressed: () => Navigator.pop(ctx, selectedId),
                 child: const Text('Continue'),
               ),
@@ -156,7 +190,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -164,7 +200,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Evolve Platform Analytics', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Evolve Platform Analytics',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: SizedBox(
           width: 400,
           child: Column(
@@ -173,28 +212,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ListTile(
                 leading: const Icon(Icons.school, color: Color(0xFF65A30D)),
                 title: const Text('Active Courses'),
-                trailing: Text('$courses', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                trailing: Text(
+                  '$courses',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.people, color: Color(0xFF3B82F6)),
                 title: const Text('Enrolled Students'),
-                trailing: Text('$students', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                trailing: Text(
+                  '$students',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.route, color: Color(0xFFF59E0B)),
                 title: const Text('Structured Formations'),
-                trailing: Text('$formations', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                trailing: Text(
+                  '$formations',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               ListTile(
-                leading: const Icon(Icons.play_lesson, color: Color(0xFF8B5CF6)),
+                leading: const Icon(
+                  Icons.play_lesson,
+                  color: Color(0xFF8B5CF6),
+                ),
                 title: const Text('Total Lessons'),
-                trailing: Text('$lessons', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                trailing: Text(
+                  '$lessons',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
         ],
       ),
     );
@@ -225,9 +294,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Dashboard', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF212121))),
+                          const Text(
+                            'Dashboard',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF212121),
+                            ),
+                          ),
                           const SizedBox(height: 6),
-                          Text('Welcome back, ${fullName.isEmpty ? 'Staff Member' : fullName}', style: const TextStyle(color: Colors.grey, fontSize: 16)),
+                          Text(
+                            'Welcome back, ${fullName.isEmpty ? 'Staff Member' : fullName}',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                            ),
+                          ),
                         ],
                       ),
                       const Spacer(),
@@ -244,114 +326,210 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   loading
                       ? const Center(child: CircularProgressIndicator())
                       : errorMessage != null
-                          ? Text('Error loading stats: $errorMessage', style: const TextStyle(color: Colors.red))
-                          : Row(
+                      ? Text(
+                          'Error loading stats: $errorMessage',
+                          style: const TextStyle(color: Colors.red),
+                        )
+                      : LayoutBuilder(
+                          builder: (context, constraints) {
+                            final columns = constraints.maxWidth >= 1050
+                                ? 4
+                                : 2;
+                            return GridView.count(
+                              crossAxisCount: columns,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              childAspectRatio: columns == 4 ? 1.35 : 1.8,
                               children: [
                                 _statCard(
                                   'Courses',
                                   courses.toString(),
                                   Icons.school_outlined,
-                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CoursesScreen())),
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const CoursesScreen(),
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(width: 20),
                                 _statCard(
                                   'Students',
                                   students.toString(),
                                   Icons.people_outline,
-                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentProgressScreen())),
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const StudentProgressScreen(),
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(width: 20),
                                 _statCard(
                                   'Formations',
                                   formations.toString(),
                                   Icons.route_outlined,
-                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FormationsScreen())),
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const FormationsScreen(),
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(width: 20),
                                 _statCard(
                                   'Lessons',
                                   lessons.toString(),
                                   Icons.play_lesson_outlined,
-                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LessonsScreen())),
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const LessonsScreen(),
+                                    ),
+                                  ),
                                 ),
                               ],
-                            ),
+                            );
+                          },
+                        ),
                   const SizedBox(height: 36),
 
                   // Quick Actions
-                  const Text('Quick Actions', style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Quick Actions',
+                    style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      _actionCard(
-                        Icons.add_circle_outline,
-                        'Create Course',
-                        'Add a new course to curriculum',
-                        onTap: () async {
-                          final created = await Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const CreateCourseScreen()),
-                          );
-                          if (created == true && mounted) {
-                            await _loadDashboardData();
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 16),
-                      _actionCard(
-                        Icons.video_call_outlined,
-                        'Add Lesson',
-                        'Create a new video or lecture',
-                        onTap: _quickAddLesson,
-                      ),
-                      const SizedBox(width: 16),
-                      _actionCard(
-                        Icons.route_outlined,
-                        'Create Formation',
-                        'Build a structured learning path',
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FormationsScreen())),
-                      ),
-                      const SizedBox(width: 16),
-                      _actionCard(
-                        Icons.rate_review_outlined,
-                        'Grade Submissions',
-                        'Evaluate student homework',
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AssignmentsScreen())),
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth >= 1050 ? 4 : 2;
+                      return GridView.count(
+                        crossAxisCount: columns,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        childAspectRatio: columns == 4 ? 2.5 : 3.2,
+                        children: [
+                          _actionCard(
+                            Icons.add_circle_outline,
+                            'Create Course',
+                            'Add a new course to curriculum',
+                            onTap: () async {
+                              final created = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const CreateCourseScreen(),
+                                ),
+                              );
+                              if (created == true && mounted) {
+                                await _loadDashboardData();
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          _actionCard(
+                            Icons.video_call_outlined,
+                            'Add Lesson',
+                            'Create a new video or lecture',
+                            onTap: _quickAddLesson,
+                          ),
+                          const SizedBox(width: 16),
+                          _actionCard(
+                            Icons.route_outlined,
+                            'Create Formation',
+                            'Build a structured learning path',
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const FormationsScreen(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          _actionCard(
+                            Icons.rate_review_outlined,
+                            'Grade Submissions',
+                            'Evaluate student homework',
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const AssignmentsScreen(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 36),
 
                   // Recent Activity
-                  const Text('Recent Platform Activity', style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Recent Platform Activity',
+                    style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: recentActivities.isEmpty
                         ? const Center(
                             child: Padding(
                               padding: EdgeInsets.all(20),
-                              child: Text('No recent activity recorded yet.', style: TextStyle(color: Colors.grey, fontSize: 15)),
+                              child: Text(
+                                'No recent activity recorded yet.',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 15,
+                                ),
+                              ),
                             ),
                           )
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: recentActivities.map((item) {
-                              final title = item['title']?.toString() ?? 'Course';
-                              final domain = item['domain']?.toString() ?? 'General';
-                              final dateStr = item['created_at'] != null ? item['created_at'].toString().substring(0, 10) : '';
+                              final title =
+                                  item['title']?.toString() ?? 'Course';
+                              final domain =
+                                  item['domain']?.toString() ?? 'General';
+                              final dateStr = item['created_at'] != null
+                                  ? item['created_at'].toString().substring(
+                                      0,
+                                      10,
+                                    )
+                                  : '';
 
                               return ListTile(
                                 leading: Container(
                                   padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(color: const Color(0xFFEFFFD8), borderRadius: BorderRadius.circular(10)),
-                                  child: const Icon(Icons.school_outlined, color: Color(0xFF65A30D)),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEFFFD8),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(
+                                    Icons.school_outlined,
+                                    color: Color(0xFF65A30D),
+                                  ),
                                 ),
-                                title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                title: Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                                 subtitle: Text(domain),
-                                trailing: Text(dateStr, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                                trailing: Text(
+                                  dateStr,
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               );
                             }).toList(),
                           ),
@@ -365,7 +543,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSidebar(BuildContext context, bool isAdmin, String role, String fullName) {
+  Widget _buildSidebar(
+    BuildContext context,
+    bool isAdmin,
+    String role,
+    String fullName,
+  ) {
     return Container(
       width: 250,
       color: const Color(0xFF111111),
@@ -373,9 +556,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('EVOLVE', style: TextStyle(color: Color(0xFF84CC16), fontSize: 26, fontWeight: FontWeight.bold)),
+          const Text(
+            'EVOLVE',
+            style: TextStyle(
+              color: Color(0xFF84CC16),
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 4),
-          const Text('Staff Portal', style: TextStyle(color: Colors.white54, fontSize: 13)),
+          const Text(
+            'Staff Portal',
+            style: TextStyle(color: Colors.white54, fontSize: 13),
+          ),
           const SizedBox(height: 36),
 
           Expanded(
@@ -383,28 +576,112 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _menuItem(context, Icons.dashboard_outlined, 'Dashboard', onTap: _loadDashboardData),
-                  _menuItem(context, Icons.school_outlined, 'My Courses',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CoursesScreen()))),
-                  _menuItem(context, Icons.play_lesson_outlined, 'Lessons',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LessonsScreen()))),
-                  _menuItem(context, Icons.route_outlined, 'Formations',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FormationsScreen()))),
-                  _menuItem(context, Icons.assignment_outlined, 'Assignments',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AssignmentsScreen()))),
-                  _menuItem(context, Icons.people_outline, 'Students Progress',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentProgressScreen()))),
-                  _menuItem(context, Icons.mail_outline, 'Student Messages',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MessagesScreen()))),
-                  _menuItem(context, Icons.analytics_outlined, 'Statistics',
-                      onTap: _showStatsOverview),
+                  _menuItem(
+                    context,
+                    Icons.dashboard_outlined,
+                    'Dashboard',
+                    onTap: _loadDashboardData,
+                  ),
+                  _menuItem(
+                    context,
+                    Icons.school_outlined,
+                    'My Courses',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CoursesScreen()),
+                    ),
+                  ),
+                  _menuItem(
+                    context,
+                    Icons.play_lesson_outlined,
+                    'Lessons',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LessonsScreen()),
+                    ),
+                  ),
+                  _menuItem(
+                    context,
+                    Icons.route_outlined,
+                    'Formations',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const FormationsScreen(),
+                      ),
+                    ),
+                  ),
+                  _menuItem(
+                    context,
+                    Icons.assignment_outlined,
+                    'Assignments',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AssignmentsScreen(),
+                      ),
+                    ),
+                  ),
+                  _menuItem(
+                    context,
+                    Icons.people_outline,
+                    'Students Progress',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const StudentProgressScreen(),
+                      ),
+                    ),
+                  ),
+                  _menuItem(
+                    context,
+                    Icons.mail_outline,
+                    'Student Messages',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MessagesScreen()),
+                    ),
+                  ),
+                  _menuItem(
+                    context,
+                    Icons.analytics_outlined,
+                    'Statistics',
+                    onTap: _showStatsOverview,
+                  ),
 
                   if (isAdmin) ...[
                     const SizedBox(height: 20),
-                    const Text('ADMINISTRATION', style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'ADMINISTRATION',
+                      style: TextStyle(
+                        color: Colors.white38,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 12),
-                    _menuItem(context, Icons.manage_accounts_outlined, 'Users & Roles',
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UsersManagementScreen()))),
+                    _menuItem(
+                      context,
+                      Icons.manage_accounts_outlined,
+                      'Users & Roles',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UsersManagementScreen(),
+                        ),
+                      ),
+                    ),
+                    _menuItem(
+                      context,
+                      Icons.payments_outlined,
+                      'Revenue',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RevenueScreen(),
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -416,7 +693,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // User Profile Card & Sign Out
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Row(
               children: [
                 CircleAvatar(
@@ -424,7 +704,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   backgroundColor: const Color(0xFF84CC16),
                   child: Text(
                     fullName.isNotEmpty ? fullName[0].toUpperCase() : 'E',
-                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -432,15 +715,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(fullName.isEmpty ? 'Staff Member' : fullName, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
+                      Text(
+                        fullName.isEmpty ? 'Staff Member' : fullName,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text(role.toUpperCase(), style: const TextStyle(color: Color(0xFF84CC16), fontSize: 11, fontWeight: FontWeight.bold)),
+                      Text(
+                        role.toUpperCase(),
+                        style: const TextStyle(
+                          color: Color(0xFF84CC16),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 IconButton(
                   tooltip: 'Sign Out',
-                  icon: const Icon(Icons.logout, color: Colors.white60, size: 18),
+                  icon: const Icon(
+                    Icons.logout,
+                    color: Colors.white60,
+                    size: 18,
+                  ),
                   onPressed: _handleLogout,
                 ),
               ],
@@ -451,7 +753,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _menuItem(BuildContext context, IconData icon, String title, {VoidCallback? onTap}) {
+  Widget _menuItem(
+    BuildContext context,
+    IconData icon,
+    String title, {
+    VoidCallback? onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Material(
@@ -465,7 +772,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Icon(icon, color: Colors.white70, size: 20),
                 const SizedBox(width: 14),
-                Text(title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                Text(
+                  title,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
               ],
             ),
           ),
@@ -474,68 +784,98 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _statCard(String title, String value, IconData icon, {VoidCallback? onTap}) {
-    return Expanded(
-      child: Material(
-        color: Colors.white,
+  Widget _statCard(
+    String title,
+    String value,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, color: const Color(0xFF84CC16), size: 28),
+                  const Spacer(),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 12,
+                    color: Colors.black26,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: const TextStyle(color: Colors.grey, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _actionCard(
+    IconData icon,
+    String title,
+    String subtitle, {
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFFFD8),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: const Color(0xFF65A30D)),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(icon, color: const Color(0xFF84CC16), size: 28),
-                    const Spacer(),
-                    const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.black26),
+                    Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
-                const SizedBox(height: 18),
-                Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(title, style: const TextStyle(color: Colors.grey, fontSize: 13)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _actionCard(IconData icon, String title, String subtitle, {VoidCallback? onTap}) {
-    return Expanded(
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFFEFFFD8), borderRadius: BorderRadius.circular(12)),
-                  child: Icon(icon, color: const Color(0xFF65A30D)),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
