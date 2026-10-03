@@ -500,7 +500,7 @@ class _ConversationThreadScreenState extends State<_ConversationThreadScreen> {
         .from('direct_messages')
         .stream(primaryKey: ['id'])
         .eq('conversation_id', widget.conversationId)
-        .order('created_at');
+        .order('created_at', ascending: false);
     _markConversationAsRead();
     _messagesChannel = _supabase
         .channel('staff_direct_messages_${widget.conversationId}')
@@ -636,6 +636,7 @@ class _ConversationThreadScreenState extends State<_ConversationThreadScreen> {
                   );
                 }
                 return ListView.builder(
+                  reverse: true,
                   padding: const EdgeInsets.all(20),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
