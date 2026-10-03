@@ -12,6 +12,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
   final _supabase = Supabase.instance.client;
   bool _loading = true;
   String? _error;
+  String _searchQuery = '';
+  bool _unreadOnly = false;
   List<Map<String, dynamic>> _conversations = [];
   RealtimeChannel? _messagesChannel;
 
@@ -74,10 +76,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
       final students = studentIds.isEmpty
           ? <Map<String, dynamic>>[]
           : List<Map<String, dynamic>>.from(
-              await _supabase
-                  .from('profiles')
-                  .select('id, full_name, role')
-                  .inFilter('id', studentIds),
+              await _supabase.rpc(
+                'get_messaging_contact_profiles',
+                params: {'p_user_ids': studentIds},
+              ),
             );
       final messages = conversationIds.isEmpty
           ? <Map<String, dynamic>>[]
@@ -97,11 +99,17 @@ class _MessagesScreenState extends State<MessagesScreen> {
             item['id'].toString(): item,
       };
       final latestByConversation = <String, Map<String, dynamic>>{};
+      final unreadByConversation = <String, int>{};
       for (final message in messages) {
-        latestByConversation.putIfAbsent(
-          message['conversation_id'].toString(),
-          () => message,
-        );
+        final conversationId = message['conversation_id'].toString();
+        latestByConversation.putIfAbsent(conversationId, () => message);
+        if (message['receiver_id'] == user.id && message['is_read'] == false) {
+          unreadByConversation.update(
+            conversationId,
+            (count) => count + 1,
+            ifAbsent: () => 1,
+          );
+        }
       }
 
       for (final conversation in conversations) {
@@ -119,6 +127,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
             latestByConversation[conversation['id'].toString()]?['created_at']
                 ?.toString() ??
             conversation['created_at']?.toString();
+        conversation['unread_count'] =
+            unreadByConversation[conversation['id'].toString()] ?? 0;
       }
 
       conversations.removeWhere(
@@ -166,6 +176,20 @@ class _MessagesScreenState extends State<MessagesScreen> {
     if (mounted) await _loadConversations();
   }
 
+  List<Map<String, dynamic>> get _filteredConversations {
+    final query = _searchQuery.trim().toLowerCase();
+    return _conversations.where((conversation) {
+      final name = conversation['student_name']?.toString().toLowerCase() ?? '';
+      final preview =
+          conversation['latest_message']?.toString().toLowerCase() ?? '';
+      final matchesSearch =
+          query.isEmpty || name.contains(query) || preview.contains(query);
+      final matchesUnread =
+          !_unreadOnly || (conversation['unread_count'] as int? ?? 0) > 0;
+      return matchesSearch && matchesUnread;
+    }).toList();
+  }
+
   static bool _isStudentRole(String? role) {
     switch (role?.trim().toLowerCase()) {
       case 'student':
@@ -181,6 +205,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredConversations = _filteredConversations;
+    final unreadCount = _conversations.fold<int>(
+      0,
+      (total, conversation) =>
+          total + (conversation['unread_count'] as int? ?? 0),
+    );
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
@@ -199,72 +230,242 @@ class _MessagesScreenState extends State<MessagesScreen> {
           const SizedBox(width: 12),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(_error!, style: const TextStyle(color: Colors.red)),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: _loadConversations,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            )
-          : _conversations.isEmpty
-          ? const Center(child: Text('No student conversations yet.'))
-          : RefreshIndicator(
-              onRefresh: _loadConversations,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(20),
-                itemCount: _conversations.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final conversation = _conversations[index];
-                  final timestamp = DateTime.tryParse(
-                    conversation['latest_message_at']?.toString() ?? '',
-                  );
-                  return Card(
-                    child: ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Color(0xFFEFFFD8),
-                        child: Icon(
-                          Icons.person_outline,
-                          color: Color(0xFF65A30D),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${_conversations.length} conversations',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    if (unreadCount > 0)
+                      Chip(
+                        avatar: const Icon(
+                          Icons.mark_email_unread_outlined,
+                          size: 16,
                         ),
+                        label: Text('$unreadCount unread'),
+                        visualDensity: VisualDensity.compact,
                       ),
-                      title: Text(
-                        conversation['student_name']?.toString() ?? 'Student',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                  decoration: InputDecoration(
+                    hintText: 'Search students or messages',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchQuery.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'Clear search',
+                            onPressed: () => setState(() => _searchQuery = ''),
+                            icon: const Icon(Icons.close),
+                          ),
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FilterChip(
+                  avatar: const Icon(
+                    Icons.mark_email_unread_outlined,
+                    size: 18,
+                  ),
+                  label: const Text('Unread only'),
+                  selected: _unreadOnly,
+                  onSelected: (selected) =>
+                      setState(() => _unreadOnly = selected),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.cloud_off_outlined, size: 40),
+                          const SizedBox(height: 12),
+                          Text(
+                            _error!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton.icon(
+                            onPressed: _loadConversations,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Try again'),
+                          ),
+                        ],
                       ),
-                      subtitle: Text(
-                        conversation['latest_message']?.toString().isNotEmpty ==
-                                true
-                            ? conversation['latest_message'].toString()
-                            : 'Start a conversation',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    ),
+                  )
+                : filteredConversations.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _conversations.isEmpty
+                                ? Icons.forum_outlined
+                                : Icons.search_off,
+                            size: 48,
+                            color: Colors.black38,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _conversations.isEmpty
+                                ? 'No student conversations yet'
+                                : 'No conversations match these filters',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _conversations.isEmpty
+                                ? 'New conversations appear here when a student sends you a message.'
+                                : 'Try another name or turn off the unread filter.',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.black54),
+                          ),
+                        ],
                       ),
-                      trailing: timestamp == null
-                          ? const Icon(Icons.chevron_right)
-                          : Text(
-                              timestamp.toLocal().toString().substring(0, 16),
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 12,
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadConversations,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                      itemCount: filteredConversations.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final conversation = filteredConversations[index];
+                        final timestamp = DateTime.tryParse(
+                          conversation['latest_message_at']?.toString() ?? '',
+                        );
+                        final unread =
+                            conversation['unread_count'] as int? ?? 0;
+                        return Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 8,
+                            ),
+                            leading: CircleAvatar(
+                              radius: 24,
+                              backgroundColor: const Color(0xFFEFFFD8),
+                              child: Text(
+                                (conversation['student_name']
+                                            ?.toString()
+                                            .trim()
+                                            .isNotEmpty ??
+                                        false)
+                                    ? conversation['student_name']
+                                          .toString()
+                                          .trim()[0]
+                                          .toUpperCase()
+                                    : 'S',
+                                style: const TextStyle(
+                                  color: Color(0xFF65A30D),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                      onTap: () => _openConversation(conversation),
+                            title: Text(
+                              conversation['student_name']?.toString() ??
+                                  'Student',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: Text(
+                                conversation['latest_message']
+                                            ?.toString()
+                                            .isNotEmpty ==
+                                        true
+                                    ? conversation['latest_message'].toString()
+                                    : 'Conversation started — send a reply',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                if (timestamp != null)
+                                  Text(
+                                    _formatTimestamp(timestamp),
+                                    style: const TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                const SizedBox(height: 6),
+                                if (unread > 0)
+                                  CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: const Color(0xFF65A30D),
+                                    child: Text(
+                                      unread > 99 ? '99+' : '$unread',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    color: Colors.black45,
+                                  ),
+                              ],
+                            ),
+                            onTap: () => _openConversation(conversation),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
+          ),
+        ],
+      ),
     );
+  }
+
+  static String _formatTimestamp(DateTime timestamp) {
+    final local = timestamp.toLocal();
+    final now = DateTime.now();
+    final sameDay =
+        local.year == now.year &&
+        local.month == now.month &&
+        local.day == now.day;
+    if (sameDay) {
+      final hour = local.hour.toString().padLeft(2, '0');
+      final minute = local.minute.toString().padLeft(2, '0');
+      return '$hour:$minute';
+    }
+    return '${local.day}/${local.month}/${local.year}';
   }
 }
 
@@ -299,7 +500,7 @@ class _ConversationThreadScreenState extends State<_ConversationThreadScreen> {
         .from('direct_messages')
         .stream(primaryKey: ['id'])
         .eq('conversation_id', widget.conversationId)
-        .order('created_at');
+        .order('created_at', ascending: false);
     _markConversationAsRead();
     _messagesChannel = _supabase
         .channel('staff_direct_messages_${widget.conversationId}')
@@ -435,6 +636,7 @@ class _ConversationThreadScreenState extends State<_ConversationThreadScreen> {
                   );
                 }
                 return ListView.builder(
+                  reverse: true,
                   padding: const EdgeInsets.all(20),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {

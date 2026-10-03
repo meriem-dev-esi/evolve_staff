@@ -1,29 +1,114 @@
-# evolve_staff
+# Evolve Staff
 
-A new Flutter project.
+Application Flutter pour les formateurs et les administrateurs Evolve Academy.
+Elle permet de gérer les cours, les leçons, les formations, les devoirs, le suivi
+des étudiants et les messages envoyés depuis le site Evolve School.
 
-## Getting Started
+## Démarrage rapide
 
-This project is a starting point for a Flutter application.
+### Prérequis
 
-A few resources to get you started if this is your first Flutter project:
+- Flutter et Dart installés (`flutter doctor` doit être sans erreur bloquante)
+- Git
+- Un compte Evolve Staff autorisé (`teacher` ou `admin`)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Installer et lancer
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Depuis le dossier du projet :
 
-## Shared student messaging
+```bash
+flutter pub get
+flutter run -d windows
+```
 
-The staff portal uses the same Supabase project and direct-message tables as
-the Evolve School website. Student conversations are stored in
-`public.conversations`, and messages are stored in `public.direct_messages`.
-Apply the website migration
-`supabase/migrations/20261001_student_teacher_messaging.sql` to the shared
-Supabase project before testing this feature.
+Pour lancer sur une autre plateforme, remplacez `windows` par un appareil
+disponible dans `flutter devices`. Si les dépendances sont déjà installées, vous
+pouvez aussi lancer `flutter run`.
 
-Sign in with a teacher account, then open **Student Messages**. A conversation
-appears after a student sends the first message from the website. Replies sent
-here are visible to that student in the website conversation.
+L’application est préconfigurée pour le projet Supabase partagé avec Evolve
+School. Si vous utilisez un autre environnement, adaptez la configuration
+publique Supabase dans `lib/main.dart`. **N’ajoutez jamais de clé `service_role`
+ou de secret Chargily à l’application Flutter.**
+
+## Se connecter
+
+1. Connectez-vous avec l’adresse e-mail et le mot de passe du compte.
+2. Le compte doit exister dans Supabase Auth et son profil doit avoir le rôle
+   `teacher` ou `admin`.
+3. Si l’accès est refusé, demandez à un administrateur de vérifier le rôle dans
+   le profil du compte.
+
+Les champs de connexion acceptent la touche Entrée, vérifient le format de
+l’adresse e-mail et permettent d’afficher temporairement le mot de passe.
+
+## Utiliser le tableau de bord
+
+Le menu latéral donne accès aux espaces suivants :
+
+| Espace | Utilisation |
+| --- | --- |
+| **Dashboard** | Vue d’ensemble et raccourcis vers les tâches courantes |
+| **My Courses** | Rechercher, filtrer, créer, modifier et gérer les cours |
+| **Lessons** | Parcourir les leçons |
+| **Formations** | Organiser les cours en parcours |
+| **Assignments** | Examiner et noter les travaux remis |
+| **Students Progress** | Consulter la progression des étudiants |
+| **Student Messages** | Répondre aux étudiants qui écrivent depuis le site |
+| **Statistics** | Voir les compteurs de la plateforme |
+| **Users & Roles** | Gérer les rôles et inviter des administrateurs |
+| **Revenue** | Consulter les revenus enregistrés et les paiements historiques sans montant |
+
+Les cartes de statistiques et les raccourcis du tableau de bord sont
+cliquables. Utilisez l’icône d’actualisation pour recharger les données.
+
+Les administrateurs disposent aussi d’un aperçu des enseignants, des nouveaux
+comptes, des cours publiés, des paiements en attente et des inscriptions payées,
+ainsi que des dernières inscriptions de comptes. Les actions ouvrent directement
+la gestion des utilisateurs, des cours ou des paiements.
+
+L’invitation d’un administrateur nécessite le déploiement de la fonction
+Supabase `invite-admin` et la configuration de l’envoi d’e-mails dans Supabase
+Auth. Les revenus affichés proviennent des montants enregistrés au paiement ;
+les anciens paiements sans montant conservé sont signalés séparément.
+Les changements de rôle passent par un service réservé aux administrateurs ;
+le dernier administrateur et le rôle de son propre compte sont protégés.
+
+### Messages étudiant-formateur
+
+La messagerie utilise les tables partagées avec le site :
+
+- `public.conversations`
+- `public.direct_messages`
+
+Une discussion apparaît dans **Student Messages** lorsque l’étudiant envoie le
+premier message depuis Evolve School. Ouvrez la discussion, saisissez votre
+réponse et envoyez-la ; elle apparaîtra dans la conversation de l’étudiant sur le
+site. La boîte de réception permet de rechercher un étudiant, d’afficher les
+messages non lus uniquement et de rafraîchir la liste. Les nouveaux messages
+sont synchronisés en temps réel.
+
+### Si un écran ne charge pas
+
+1. Vérifiez votre connexion Internet et votre session.
+2. Utilisez **Refresh** ou **Try again** sur l’écran.
+3. Vérifiez que le rôle du compte et les données existent dans Supabase.
+4. Si l’erreur persiste, transmettez son texte à l’administrateur ; ne collez
+   jamais de clé secrète ou de jeton d’authentification dans un ticket.
+
+## Développement et vérifications
+
+Avant de proposer des changements :
+
+```bash
+dart format lib test
+flutter analyze --no-pub --no-fatal-infos
+flutter test --no-pub
+```
+
+Le même ensemble de contrôles est disponible via :
+
+```bash
+scripts/check.sh
+```
+
+GitHub Actions exécute ces vérifications lors des changements de code.
