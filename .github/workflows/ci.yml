@@ -30,7 +30,8 @@ jobs:
           channel: stable
           flutter-version: 3.35.7
           cache: true
-          cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          cache-key: flutter-${{ runner.os }}-3.35.7-${{ hashFiles('**/pubspec.lock') }}
 
       - name: Run project checks
         run: bash scripts/check.sh
+
