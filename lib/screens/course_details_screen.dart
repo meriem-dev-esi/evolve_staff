@@ -1,22 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import 'edit_course_screen.dart';
 import 'course_files_screen.dart';
 
-// ============================================================
-// HELPERS
-// ============================================================
-
-double _parsePrice(dynamic value) {
-  return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-String _formatPrice(double price) {
-  return price == price.roundToDouble()
-      ? price.toInt().toString()
-      : price.toStringAsFixed(2);
-}
 
 class CourseDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> course;
@@ -30,10 +16,10 @@ class CourseDetailsScreen extends StatefulWidget {
 class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   final supabase = Supabase.instance.client;
 
-  List<Map<String, dynamic>> lessons = [];
-
   bool loadingLessons = true;
-  String? lessonsError;
+  String? error;
+
+  List<Map<String, dynamic>> lessons = [];
 
   @override
   void initState() {
@@ -42,21 +28,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   }
 
   Future<void> loadLessons() async {
-    if (!mounted) return;
-
-    setState(() {
-      loadingLessons = true;
-      lessonsError = null;
-    });
-
     try {
-      final courseId = widget.course['id'].toString();
+      final courseId = widget.course['id'];
 
       final response = await supabase
           .from('lessons')
-          .select(
-            'id, title, description, video_url, youtube_url, duration, order_index, is_free, price',
-          )
+          .select('id, title, description, order_index')
           .eq('course_id', courseId)
           .order('order_index', ascending: true);
 
@@ -64,175 +41,224 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
 
       setState(() {
         lessons = List<Map<String, dynamic>>.from(response);
+
         loadingLessons = false;
+        error = null;
       });
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
-        lessonsError = e.toString();
+        error = e.toString();
         loadingLessons = false;
       });
     }
   }
 
-  Future<void> addLesson() async {
-    final courseId = widget.course['id'].toString();
-
-    final created = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => AddLessonScreen(courseId: courseId)),
-    );
-
-    if (!mounted) return;
-
-    if (created == true) {
-      await loadLessons();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final course = widget.course;
+    final title = widget.course['title']?.toString() ?? 'Untitled Course';
 
-    final title = course['title']?.toString() ?? 'Untitled Course';
-    final description = course['description']?.toString() ?? '';
-    final domain = course['domain']?.toString() ?? '';
-    final level = course['level']?.toString() ?? '';
-    final imageUrl = course['image_url']?.toString() ?? '';
+    final description = widget.course['description']?.toString() ?? '';
+
+    final level = widget.course['level']?.toString() ?? 'All levels';
+
+    final domain = widget.course['domain']?.toString() ?? 'General';
+
+    final imageUrl = widget.course['image_url']?.toString() ?? '';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Course Details')),
+      backgroundColor: const Color(0xFFF7F7F7),
+
+      appBar: AppBar(
+        title: const Text(
+          'Course Details',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
-            _buildCourseHeader(
-              title: title,
-              description: description,
-              domain: domain,
-              level: level,
-              imageUrl: imageUrl,
-            ),
-
-            const SizedBox(height: 32),
-
-            _buildLessons(),
-
-            const SizedBox(height: 32),
-
-            _buildCourseFiles(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCourseHeader({
-    required String title,
-    required String description,
-    required String domain,
-    required String level,
-    required String imageUrl,
-  }) {
-    return Card(
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (imageUrl.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  imageUrl,
-                  width: double.infinity,
-                  height: 220,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
-                    return Container(
-                      width: double.infinity,
-                      height: 220,
-                      color: Colors.grey.shade200,
-                      child: const Icon(
-                        Icons.image_not_supported_outlined,
-                        size: 60,
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-            if (imageUrl.isNotEmpty) const SizedBox(height: 20),
-
+            // =========================
+            // COURSE HEADER
+            // =========================
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
+                _courseImage(imageUrl),
+
+                const SizedBox(width: 24),
+
                 Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
 
-                const SizedBox(width: 16),
-
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    final updated = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EditCourseScreen(course: widget.course),
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    );
 
-                    if (!mounted) return;
+                      const SizedBox(height: 12),
 
-                    if (updated == true) {
-                      Navigator.pop(context, true);
-                    }
-                  },
-                  icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Edit Course'),
+                      Row(
+                        children: [
+                          _tag(
+                            domain,
+                            const Color(0xFFEFFFD8),
+                            const Color(0xFF65A30D),
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          _tag(
+                            level,
+                            Colors.grey.shade200,
+                            Colors.grey.shade700,
+                          ),
+                        ],
+                      ),
+
+                      if (description.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+
+                        Text(
+                          description,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 20),
+
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          final updated = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  EditCourseScreen(course: widget.course),
+                            ),
+                          );
+
+                          if (updated == true && mounted) {
+                            Navigator.pop(context, true);
+                          }
+                        },
+
+                        icon: const Icon(Icons.edit_outlined),
+
+                        label: const Text('Edit Course'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 40),
 
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                if (domain.isNotEmpty)
-                  Chip(
-                    avatar: const Icon(Icons.category_outlined, size: 18),
-                    label: Text(domain),
-                  ),
-
-                if (level.isNotEmpty)
-                  Chip(
-                    avatar: const Icon(Icons.signal_cellular_alt, size: 18),
-                    label: Text(level),
-                  ),
-              ],
+            // =========================
+            // LESSONS
+            // =========================
+            const Text(
+              'Lessons',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 16),
 
-            Text(
-              description.isEmpty
-                  ? 'No course description available.'
-                  : description,
+            _buildLessons(),
+
+            const SizedBox(height: 40),
+
+            // =========================
+            // COURSE FILES
+            // =========================
+            const Text(
+              'Course Files',
               style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade700,
-                height: 1.5,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFFFD8),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.folder_outlined,
+                      color: Color(0xFF65A30D),
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Course Resources',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Upload PDFs, videos, documents, images, ZIP files and other course materials.',
+                          style: TextStyle(
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CourseFilesScreen(
+                            course: widget.course,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.folder_open),
+                    label: const Text('Manage Files'),
+                  ),
+                ],
               ),
             ),
           ],
@@ -242,243 +268,218 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   }
 
   Widget _buildLessons() {
+    if (loadingLessons) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(40),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (error != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+
+            const SizedBox(height: 12),
+
+            const Text(
+              'Failed to load lessons',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red),
+            ),
+
+            const SizedBox(height: 16),
+
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  loadingLessons = true;
+                  error = null;
+                });
+
+                loadLessons();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (lessons.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(30),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+
+        child: Column(
+          children: [
+            Icon(
+              Icons.video_library_outlined,
+              size: 50,
+              color: Colors.grey.shade400,
+            ),
+
+            const SizedBox(height: 12),
+
+            const Text(
+              'No lessons yet',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              'Add lessons to this course.',
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _lessonsHeader(),
+      children: List.generate(lessons.length, (index) {
+        final lesson = lessons[index];
 
-        const SizedBox(height: 16),
+        return Card(
+          elevation: 0,
 
-        if (loadingLessons)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(30),
-              child: CircularProgressIndicator(),
+          margin: const EdgeInsets.only(bottom: 12),
+
+          child: ListTile(
+            onTap: () async {
+              final updated = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => LessonDetailsScreen(lesson: lesson),
+                ),
+              );
+
+              if (updated == true && mounted) {
+                loadLessons();
+              }
+            },
+
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 8,
             ),
-          )
-        else if (lessonsError != null)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Could not load lessons.',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    lessonsError!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: loadLessons,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else if (lessons.isEmpty)
-          Card(
-            elevation: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(30),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.menu_book_outlined,
-                      size: 50,
-                      color: Colors.grey.shade500,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'No lessons yet.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: addLesson,
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add First Lesson'),
-                    ),
-                  ],
+
+            leading: CircleAvatar(
+              backgroundColor: const Color(0xFFEFFFD8),
+
+              child: Text(
+                '${index + 1}',
+
+                style: const TextStyle(
+                  color: Color(0xFF65A30D),
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-          )
-        else
-          Column(
-            children: [for (final lesson in lessons) _buildLessonCard(lesson)],
-          ),
-      ],
-    );
-  }
 
-  Widget _lessonsHeader() {
-    return Row(
-      children: [
-        const Expanded(
-          child: Text(
-            'Lessons',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ),
+            title: Text(
+              lesson['title']?.toString() ?? 'Untitled Lesson',
 
-        ElevatedButton.icon(
-          onPressed: addLesson,
-          icon: const Icon(Icons.add),
-          label: const Text('Add Lesson'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLessonCard(Map<String, dynamic> lesson) {
-    final title = lesson['title']?.toString() ?? 'Untitled Lesson';
-    final description = lesson['description']?.toString() ?? '';
-    final orderIndex = lesson['order_index']?.toString() ?? '0';
-    final duration = lesson['duration'];
-
-    final youtubeUrl = lesson['youtube_url']?.toString() ?? '';
-    final videoUrl = lesson['video_url']?.toString() ?? '';
-
-    final isFree = lesson['is_free'] == true;
-    final price = _parsePrice(lesson['price']);
-
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 10,
-        ),
-        onTap: () async {
-          final updated = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => LessonDetailsScreen(lesson: lesson),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          );
 
-          if (!mounted) return;
+            subtitle: lesson['description'] != null
+                ? Text(
+                    lesson['description'].toString(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                : null,
 
-          if (updated == true) {
-            await loadLessons();
-          }
-        },
-        leading: CircleAvatar(child: Text(orderIndex)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (description.isNotEmpty)
-                Text(description, maxLines: 2, overflow: TextOverflow.ellipsis),
-
-              const SizedBox(height: 8),
-
-              Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: [
-                  if (duration != null)
-                    Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: const Icon(Icons.timer_outlined, size: 16),
-                      label: Text('$duration min'),
-                    ),
-
-                  if (youtubeUrl.isNotEmpty)
-                    const Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: Icon(Icons.play_circle_outline, size: 16),
-                      label: Text('YouTube'),
-                    ),
-
-                  if (videoUrl.isNotEmpty)
-                    const Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: Icon(Icons.video_library_outlined, size: 16),
-                      label: Text('Video'),
-                    ),
-
-                  if (isFree)
-                    const Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: Icon(Icons.lock_open_outlined, size: 16),
-                      label: Text('Free'),
-                    )
-                  else if (price > 0)
-                    Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: const Icon(Icons.payments_outlined, size: 16),
-                      label: Text('${_formatPrice(price)} DZD'),
-                    ),
-                ],
-              ),
-            ],
+            trailing: const Icon(Icons.chevron_right),
           ),
-        ),
-        trailing: const Icon(Icons.chevron_right),
-      ),
+        );
+      }),
     );
   }
 
-  Widget _buildCourseFiles() {
-    return Card(
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Course Files',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    'Manage PDFs, documents, slides and other course files.',
-                  ),
-                ],
+  Widget _courseImage(String imageUrl) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+
+      child: imageUrl.isEmpty
+          ? Container(
+              width: 260,
+              height: 160,
+              color: Colors.grey.shade200,
+
+              child: Icon(
+                Icons.school_outlined,
+                size: 60,
+                color: Colors.grey.shade500,
               ),
-            ),
-            const SizedBox(width: 16),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CourseFilesScreen(course: widget.course),
+            )
+          : Image.network(
+              imageUrl,
+              width: 260,
+              height: 160,
+              fit: BoxFit.cover,
+
+              errorBuilder: (_, __, ___) {
+                return Container(
+                  width: 260,
+                  height: 160,
+                  color: Colors.grey.shade200,
+
+                  child: Icon(
+                    Icons.school_outlined,
+                    size: 60,
+                    color: Colors.grey.shade500,
                   ),
                 );
               },
-              icon: const Icon(Icons.folder_outlined),
-              label: const Text('Manage Files'),
             ),
-          ],
+    );
+  }
+
+  Widget _tag(String text, Color background, Color foreground) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(20),
+      ),
+
+      child: Text(
+        text,
+
+        style: TextStyle(
+          color: foreground,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
 }
 
-// ============================================================
-// LESSON DETAILS
-// ============================================================
+// =============================================================
+// LESSON DETAILS SCREEN
+// =============================================================
 
 class LessonDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> lesson;
@@ -488,36 +489,47 @@ class LessonDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = lesson['title']?.toString() ?? 'Untitled Lesson';
+
     final description = lesson['description']?.toString() ?? '';
+
     final orderIndex = lesson['order_index']?.toString() ?? '0';
 
-    final youtubeUrl = lesson['youtube_url']?.toString() ?? '';
-    final videoUrl = lesson['video_url']?.toString() ?? '';
-
-    final duration = lesson['duration'];
-    final isFree = lesson['is_free'] == true;
-    final price = _parsePrice(lesson['price']);
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Lesson Details')),
+      backgroundColor: const Color(0xFFF7F7F7),
+
+      appBar: AppBar(
+        title: const Text(
+          'Lesson Details',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
+
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
+
             child: Card(
               elevation: 0,
+              color: Colors.white,
+
               child: Padding(
                 padding: const EdgeInsets.all(28),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       'Lesson $orderIndex',
                       style: TextStyle(
                         color: Colors.grey.shade600,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                       ),
                     ),
 
@@ -531,53 +543,12 @@ class LessonDetailsScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
-
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        if (duration != null)
-                          Chip(
-                            avatar: const Icon(Icons.timer_outlined),
-                            label: Text('$duration minutes'),
-                          ),
-
-                        if (isFree)
-                          const Chip(
-                            avatar: Icon(Icons.lock_open_outlined),
-                            label: Text('Free Lesson'),
-                          )
-                        else
-                          Chip(
-                            avatar: const Icon(Icons.lock_outline),
-                            label: Text(
-                              price > 0
-                                  ? 'Paid Lesson • ${_formatPrice(price)} DZD'
-                                  : 'Paid Lesson',
-                            ),
-                          ),
-
-                        if (youtubeUrl.isNotEmpty)
-                          const Chip(
-                            avatar: Icon(Icons.play_circle_outline),
-                            label: Text('YouTube'),
-                          ),
-
-                        if (videoUrl.isNotEmpty)
-                          const Chip(
-                            avatar: Icon(Icons.video_library_outlined),
-                            label: Text('Video'),
-                          ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
 
                     const Text(
                       'Description',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -588,50 +559,13 @@ class LessonDetailsScreen extends StatelessWidget {
                       description.isEmpty
                           ? 'No description available.'
                           : description,
+
                       style: TextStyle(
                         fontSize: 16,
-                        height: 1.5,
+                        height: 1.6,
                         color: Colors.grey.shade700,
                       ),
                     ),
-
-                    if (youtubeUrl.isNotEmpty) ...[
-                      const SizedBox(height: 28),
-
-                      const Text(
-                        'YouTube URL',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      SelectableText(
-                        youtubeUrl,
-                        style: const TextStyle(color: Colors.blue),
-                      ),
-                    ],
-
-                    if (videoUrl.isNotEmpty) ...[
-                      const SizedBox(height: 24),
-
-                      const Text(
-                        'Video URL',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      SelectableText(
-                        videoUrl,
-                        style: const TextStyle(color: Colors.blue),
-                      ),
-                    ],
 
                     const SizedBox(height: 32),
 
@@ -644,13 +578,13 @@ class LessonDetailsScreen extends StatelessWidget {
                           ),
                         );
 
-                        if (!context.mounted) return;
-
-                        if (updated == true) {
+                        if (updated == true && context.mounted) {
                           Navigator.pop(context, true);
                         }
                       },
+
                       icon: const Icon(Icons.edit_outlined),
+
                       label: const Text('Edit Lesson'),
                     ),
                   ],
@@ -664,9 +598,9 @@ class LessonDetailsScreen extends StatelessWidget {
   }
 }
 
-// ============================================================
-// EDIT LESSON
-// ============================================================
+// =============================================================
+// EDIT LESSON SCREEN
+// =============================================================
 
 class EditLessonScreen extends StatefulWidget {
   final Map<String, dynamic> lesson;
@@ -681,14 +615,11 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
   final supabase = Supabase.instance.client;
 
   late final TextEditingController titleController;
-  late final TextEditingController descriptionController;
-  late final TextEditingController orderController;
-  late final TextEditingController youtubeController;
-  late final TextEditingController videoController;
-  late final TextEditingController durationController;
-  late final TextEditingController priceController;
 
-  bool isFree = false;
+  late final TextEditingController descriptionController;
+
+  late final TextEditingController orderController;
+
   bool saving = false;
   String? error;
 
@@ -707,41 +638,14 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
     orderController = TextEditingController(
       text: widget.lesson['order_index']?.toString() ?? '1',
     );
-
-    youtubeController = TextEditingController(
-      text: widget.lesson['youtube_url']?.toString() ?? '',
-    );
-
-    videoController = TextEditingController(
-      text: widget.lesson['video_url']?.toString() ?? '',
-    );
-
-    durationController = TextEditingController(
-      text: widget.lesson['duration']?.toString() ?? '',
-    );
-
-    final existingPrice = _parsePrice(widget.lesson['price']);
-    priceController = TextEditingController(
-      text: existingPrice == 0 ? '' : _formatPrice(existingPrice),
-    );
-
-    isFree = widget.lesson['is_free'] == true;
   }
 
   Future<void> saveLesson() async {
     final title = titleController.text.trim();
+
     final description = descriptionController.text.trim();
 
     final orderIndex = int.tryParse(orderController.text.trim());
-
-    final youtubeUrl = youtubeController.text.trim();
-    final videoUrl = videoController.text.trim();
-
-    final durationText = durationController.text.trim();
-    final duration = durationText.isEmpty ? null : int.tryParse(durationText);
-
-    final priceText = priceController.text.trim().replaceAll(',', '.');
-    final price = isFree ? 0.0 : double.tryParse(priceText);
 
     if (title.isEmpty) {
       setState(() {
@@ -753,21 +657,6 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
     if (orderIndex == null || orderIndex < 1) {
       setState(() {
         error = 'Please enter a valid order number.';
-      });
-      return;
-    }
-
-    if (durationText.isNotEmpty && (duration == null || duration < 0)) {
-      setState(() {
-        error = 'Please enter a valid duration.';
-      });
-      return;
-    }
-
-    if (!isFree && (price == null || price <= 0)) {
-      setState(() {
-        error =
-            'Please enter a price greater than 0, or mark the lesson as free.';
       });
       return;
     }
@@ -784,11 +673,6 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
             'title': title,
             'description': description.isEmpty ? null : description,
             'order_index': orderIndex,
-            'youtube_url': youtubeUrl.isEmpty ? null : youtubeUrl,
-            'video_url': videoUrl.isEmpty ? null : videoUrl,
-            'duration': duration,
-            'is_free': isFree,
-            'price': price,
           })
           .eq('id', widget.lesson['id']);
 
@@ -819,10 +703,6 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
     titleController.dispose();
     descriptionController.dispose();
     orderController.dispose();
-    youtubeController.dispose();
-    videoController.dispose();
-    durationController.dispose();
-    priceController.dispose();
 
     super.dispose();
   }
@@ -830,23 +710,40 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Lesson')),
+      backgroundColor: const Color(0xFFF7F7F7),
+
+      appBar: AppBar(
+        title: const Text(
+          'Edit Lesson',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
+
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 800),
+
             child: Card(
               elevation: 0,
+              color: Colors.white,
+
               child: Padding(
                 padding: const EdgeInsets.all(28),
+
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     const Text(
-                      'Edit Lesson',
+                      'Lesson Information',
                       style: TextStyle(
-                        fontSize: 26,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -855,11 +752,10 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
 
                     TextField(
                       controller: titleController,
-                      enabled: !saving,
+
                       decoration: const InputDecoration(
                         labelText: 'Lesson Title',
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.title),
                       ),
                     ),
 
@@ -867,12 +763,12 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
 
                     TextField(
                       controller: descriptionController,
-                      enabled: !saving,
-                      maxLines: 5,
+
+                      maxLines: 6,
+
                       decoration: const InputDecoration(
                         labelText: 'Description',
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description_outlined),
                       ),
                     ),
 
@@ -880,124 +776,32 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
 
                     TextField(
                       controller: orderController,
-                      enabled: !saving,
+
                       keyboardType: TextInputType.number,
+
                       decoration: const InputDecoration(
                         labelText: 'Order',
-                        hintText: 'Example: 1',
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.format_list_numbered),
                       ),
                     ),
-
-                    const SizedBox(height: 18),
-
-                    TextField(
-                      controller: youtubeController,
-                      enabled: !saving,
-                      keyboardType: TextInputType.url,
-                      decoration: const InputDecoration(
-                        labelText: 'YouTube URL',
-                        hintText: 'https://www.youtube.com/watch?v=...',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.play_circle_outline),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    TextField(
-                      controller: videoController,
-                      enabled: !saving,
-                      keyboardType: TextInputType.url,
-                      decoration: const InputDecoration(
-                        labelText: 'Video URL',
-                        hintText: 'https://...',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.video_library_outlined),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    TextField(
-                      controller: durationController,
-                      enabled: !saving,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Duration (minutes)',
-                        hintText: 'Example: 15',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.timer_outlined),
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text(
-                        'Free Lesson',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: const Text(
-                        'Students can access this lesson for free.',
-                      ),
-                      value: isFree,
-                      onChanged: saving
-                          ? null
-                          : (value) {
-                              setState(() {
-                                isFree = value;
-                              });
-                            },
-                    ),
-
-                    if (!isFree) ...[
-                      const SizedBox(height: 12),
-
-                      TextField(
-                        controller: priceController,
-                        enabled: !saving,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: 'Price (DZD)',
-                          hintText: 'Example: 2000',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.payments_outlined),
-                        ),
-                      ),
-                    ],
 
                     if (error != null) ...[
                       const SizedBox(height: 16),
 
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          error!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
+                      Text(error!, style: const TextStyle(color: Colors.red)),
                     ],
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
+
                       children: [
-                        TextButton(
+                        OutlinedButton(
                           onPressed: saving
                               ? null
-                              : () {
-                                  Navigator.pop(context);
-                                },
+                              : () => Navigator.pop(context),
+
                           child: const Text('Cancel'),
                         ),
 
@@ -1005,6 +809,7 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
 
                         ElevatedButton.icon(
                           onPressed: saving ? null : saveLesson,
+
                           icon: saving
                               ? const SizedBox(
                                   width: 18,
@@ -1014,337 +819,8 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
                                   ),
                                 )
                               : const Icon(Icons.save_outlined),
+
                           label: Text(saving ? 'Saving...' : 'Save Changes'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// ADD LESSON
-// ============================================================
-
-class AddLessonScreen extends StatefulWidget {
-  final String courseId;
-
-  const AddLessonScreen({super.key, required this.courseId});
-
-  @override
-  State<AddLessonScreen> createState() => _AddLessonScreenState();
-}
-
-class _AddLessonScreenState extends State<AddLessonScreen> {
-  final supabase = Supabase.instance.client;
-
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-  final orderController = TextEditingController();
-
-  final youtubeController = TextEditingController();
-  final videoController = TextEditingController();
-  final durationController = TextEditingController();
-  final priceController = TextEditingController();
-
-  bool isFree = false;
-  bool saving = false;
-  String? error;
-
-  Future<void> createLesson() async {
-    final title = titleController.text.trim();
-    final description = descriptionController.text.trim();
-
-    final orderIndex = int.tryParse(orderController.text.trim());
-
-    final youtubeUrl = youtubeController.text.trim();
-    final videoUrl = videoController.text.trim();
-
-    final durationText = durationController.text.trim();
-    final duration = durationText.isEmpty ? null : int.tryParse(durationText);
-
-    final priceText = priceController.text.trim().replaceAll(',', '.');
-    final price = isFree ? 0.0 : double.tryParse(priceText);
-
-    if (title.isEmpty) {
-      setState(() {
-        error = 'Lesson title is required.';
-      });
-      return;
-    }
-
-    if (orderIndex == null || orderIndex < 1) {
-      setState(() {
-        error = 'Please enter a valid order number.';
-      });
-      return;
-    }
-
-    if (durationText.isNotEmpty && (duration == null || duration < 0)) {
-      setState(() {
-        error = 'Please enter a valid duration.';
-      });
-      return;
-    }
-
-    if (!isFree && (price == null || price <= 0)) {
-      setState(() {
-        error =
-            'Please enter a price greater than 0, or mark the lesson as free.';
-      });
-      return;
-    }
-
-    setState(() {
-      saving = true;
-      error = null;
-    });
-
-    try {
-      await supabase.from('lessons').insert({
-        'course_id': widget.courseId,
-        'title': title,
-        'description': description.isEmpty ? null : description,
-        'order_index': orderIndex,
-        'youtube_url': youtubeUrl.isEmpty ? null : youtubeUrl,
-        'video_url': videoUrl.isEmpty ? null : videoUrl,
-        'duration': duration,
-        'is_free': isFree,
-        'price': price,
-      });
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lesson created successfully.')),
-      );
-
-      Navigator.pop(context, true);
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        error = e.toString();
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          saving = false;
-        });
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    titleController.dispose();
-    descriptionController.dispose();
-    orderController.dispose();
-    youtubeController.dispose();
-    videoController.dispose();
-    durationController.dispose();
-    priceController.dispose();
-
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add Lesson')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: Card(
-              elevation: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Add New Lesson',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    TextField(
-                      controller: titleController,
-                      enabled: !saving,
-                      decoration: const InputDecoration(
-                        labelText: 'Lesson Title',
-                        hintText: 'Example: Introduction to HTML',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.title),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    TextField(
-                      controller: descriptionController,
-                      enabled: !saving,
-                      maxLines: 5,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        hintText: 'Describe what students will learn...',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description_outlined),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    TextField(
-                      controller: orderController,
-                      enabled: !saving,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Order',
-                        hintText: 'Example: 1',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.format_list_numbered),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    TextField(
-                      controller: youtubeController,
-                      enabled: !saving,
-                      keyboardType: TextInputType.url,
-                      decoration: const InputDecoration(
-                        labelText: 'YouTube URL',
-                        hintText: 'https://www.youtube.com/watch?v=...',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.play_circle_outline),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    TextField(
-                      controller: videoController,
-                      enabled: !saving,
-                      keyboardType: TextInputType.url,
-                      decoration: const InputDecoration(
-                        labelText: 'Video URL',
-                        hintText: 'https://example.com/video.mp4',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.video_library_outlined),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    TextField(
-                      controller: durationController,
-                      enabled: !saving,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Duration (minutes)',
-                        hintText: 'Example: 15',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.timer_outlined),
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text(
-                        'Free Lesson',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: const Text(
-                        'Students can access this lesson for free.',
-                      ),
-                      value: isFree,
-                      onChanged: saving
-                          ? null
-                          : (value) {
-                              setState(() {
-                                isFree = value;
-                              });
-                            },
-                    ),
-
-                    if (!isFree) ...[
-                      const SizedBox(height: 12),
-
-                      TextField(
-                        controller: priceController,
-                        enabled: !saving,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: 'Price (DZD)',
-                          hintText: 'Example: 2000',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.payments_outlined),
-                        ),
-                      ),
-                    ],
-
-                    if (error != null) ...[
-                      const SizedBox(height: 16),
-
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          error!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 24),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: saving
-                              ? null
-                              : () {
-                                  Navigator.pop(context);
-                                },
-                          child: const Text('Cancel'),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        ElevatedButton.icon(
-                          onPressed: saving ? null : createLesson,
-                          icon: saving
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.add),
-                          label: Text(saving ? 'Creating...' : 'Create Lesson'),
                         ),
                       ],
                     ),
