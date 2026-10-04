@@ -498,14 +498,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               }
                             },
                           ),
-                          const SizedBox(width: 16),
                           _actionCard(
                             Icons.video_call_outlined,
                             'Add Lesson',
                             'Create a new video or lecture',
                             onTap: _quickAddLesson,
                           ),
-                          const SizedBox(width: 16),
                           _actionCard(
                             Icons.route_outlined,
                             'Create Formation',
@@ -517,7 +515,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
                           _actionCard(
                             Icons.rate_review_outlined,
                             'Grade Submissions',
