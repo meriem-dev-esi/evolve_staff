@@ -56,7 +56,7 @@ Le menu latéral donne accès aux espaces suivants :
 | **Student Messages** | Répondre aux étudiants qui écrivent depuis le site |
 | **Statistics** | Voir les compteurs de la plateforme |
 | **Users & Roles** | Gérer les rôles et inviter des administrateurs |
-| **Revenue** | Consulter les revenus enregistrés et les paiements historiques sans montant |
+| **Revenue** | Consulter les revenus enregistrés, leur répartition par cours et les paiements historiques sans montant |
 
 Les cartes de statistiques et les raccourcis du tableau de bord sont
 cliquables. Utilisez l’icône d’actualisation pour recharger les données.
@@ -69,9 +69,30 @@ la gestion des utilisateurs, des cours ou des paiements.
 L’invitation d’un administrateur nécessite le déploiement de la fonction
 Supabase `invite-admin` et la configuration de l’envoi d’e-mails dans Supabase
 Auth. Les revenus affichés proviennent des montants enregistrés au paiement ;
-les anciens paiements sans montant conservé sont signalés séparément.
+les anciens paiements sans montant conservé ou enregistrés à zéro sur un cours
+payant sont signalés séparément. Le prix actuel du cours n’est pas utilisé pour
+estimer un ancien paiement.
 Les changements de rôle passent par un service réservé aux administrateurs ;
 le dernier administrateur et le rôle de son propre compte sont protégés.
+La liste des utilisateurs est chargée par la fonction Supabase réservée aux
+administrateurs `admin-users`, afin de respecter les politiques RLS des profils.
+Les administrateurs peuvent filtrer les cours à vérifier et publier ou
+dépublier un cours après confirmation. La carte **Courses needing review**
+ouvre directement les brouillons.
+La page **Statistics** des administrateurs présente un graphique de tendance
+mensuelle des inscriptions et des comptes, un graphique circulaire des statuts
+de paiement, les cours les plus demandés, les revenus associés et les travaux
+à corriger. Son rapport financier permet de sélectionner un mois, de comparer
+les revenus enregistrés avec le mois précédent, de consulter les revenus par
+cours et de télécharger le rapport au format CSV. Les webhooks de paiement
+enregistrent la date réelle de réception pour les paiements futurs ; les
+anciennes lignes sans date restent exclues des totaux mensuels et sont
+signalées. Les administrateurs peuvent aussi saisir des dépenses ponctuelles
+et des remboursements liés à une inscription payée. Le rapport présente le
+mouvement net enregistré et des alertes de baisse des paiements, d’augmentation
+des inscriptions en attente et de baisse des inscriptions par cours. Ces
+chiffres ne représentent pas un bénéfice comptable : les frais de paiement et
+les mouvements non saisis ne sont pas inclus.
 
 ### Messages étudiant-formateur
 

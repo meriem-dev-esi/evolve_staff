@@ -4,6 +4,20 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'edit_course_screen.dart';
 import 'course_files_screen.dart';
 
+// ============================================================
+// HELPERS
+// ============================================================
+
+double _parsePrice(dynamic value) {
+  return double.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+String _formatPrice(double price) {
+  return price == price.roundToDouble()
+      ? price.toInt().toString()
+      : price.toStringAsFixed(2);
+}
+
 class CourseDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> course;
 
@@ -41,7 +55,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
       final response = await supabase
           .from('lessons')
           .select(
-            'id, title, description, video_url, youtube_url, duration, order_index, is_free',
+            'id, title, description, video_url, youtube_url, duration, order_index, is_free, price',
           )
           .eq('course_id', courseId)
           .order('order_index', ascending: true);
@@ -337,6 +351,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     final videoUrl = lesson['video_url']?.toString() ?? '';
 
     final isFree = lesson['is_free'] == true;
+    final price = _parsePrice(lesson['price']);
 
     return Card(
       elevation: 0,
@@ -402,6 +417,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       visualDensity: VisualDensity.compact,
                       avatar: Icon(Icons.lock_open_outlined, size: 16),
                       label: Text('Free'),
+                    )
+                  else if (price > 0)
+                    Chip(
+                      visualDensity: VisualDensity.compact,
+                      avatar: const Icon(Icons.payments_outlined, size: 16),
+                      label: Text('${_formatPrice(price)} DZD'),
                     ),
                 ],
               ),
@@ -475,6 +496,7 @@ class LessonDetailsScreen extends StatelessWidget {
 
     final duration = lesson['duration'];
     final isFree = lesson['is_free'] == true;
+    final price = _parsePrice(lesson['price']);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Lesson Details')),
@@ -527,9 +549,13 @@ class LessonDetailsScreen extends StatelessWidget {
                             label: Text('Free Lesson'),
                           )
                         else
-                          const Chip(
-                            avatar: Icon(Icons.lock_outline),
-                            label: Text('Paid Lesson'),
+                          Chip(
+                            avatar: const Icon(Icons.lock_outline),
+                            label: Text(
+                              price > 0
+                                  ? 'Paid Lesson • ${_formatPrice(price)} DZD'
+                                  : 'Paid Lesson',
+                            ),
                           ),
 
                         if (youtubeUrl.isNotEmpty)
@@ -660,6 +686,7 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
   late final TextEditingController youtubeController;
   late final TextEditingController videoController;
   late final TextEditingController durationController;
+  late final TextEditingController priceController;
 
   bool isFree = false;
   bool saving = false;
@@ -693,6 +720,11 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
       text: widget.lesson['duration']?.toString() ?? '',
     );
 
+    final existingPrice = _parsePrice(widget.lesson['price']);
+    priceController = TextEditingController(
+      text: existingPrice == 0 ? '' : _formatPrice(existingPrice),
+    );
+
     isFree = widget.lesson['is_free'] == true;
   }
 
@@ -706,8 +738,10 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
     final videoUrl = videoController.text.trim();
 
     final durationText = durationController.text.trim();
-
     final duration = durationText.isEmpty ? null : int.tryParse(durationText);
+
+    final priceText = priceController.text.trim().replaceAll(',', '.');
+    final price = isFree ? 0.0 : double.tryParse(priceText);
 
     if (title.isEmpty) {
       setState(() {
@@ -730,6 +764,14 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
       return;
     }
 
+    if (!isFree && (price == null || price <= 0)) {
+      setState(() {
+        error =
+            'Please enter a price greater than 0, or mark the lesson as free.';
+      });
+      return;
+    }
+
     setState(() {
       saving = true;
       error = null;
@@ -746,6 +788,7 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
             'video_url': videoUrl.isEmpty ? null : videoUrl,
             'duration': duration,
             'is_free': isFree,
+            'price': price,
           })
           .eq('id', widget.lesson['id']);
 
@@ -779,6 +822,7 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
     youtubeController.dispose();
     videoController.dispose();
     durationController.dispose();
+    priceController.dispose();
 
     super.dispose();
   }
@@ -909,6 +953,24 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
                             },
                     ),
 
+                    if (!isFree) ...[
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: priceController,
+                        enabled: !saving,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: const InputDecoration(
+                          labelText: 'Price (DZD)',
+                          hintText: 'Example: 2000',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.payments_outlined),
+                        ),
+                      ),
+                    ],
+
                     if (error != null) ...[
                       const SizedBox(height: 16),
 
@@ -990,6 +1052,7 @@ class _AddLessonScreenState extends State<AddLessonScreen> {
   final youtubeController = TextEditingController();
   final videoController = TextEditingController();
   final durationController = TextEditingController();
+  final priceController = TextEditingController();
 
   bool isFree = false;
   bool saving = false;
@@ -1005,8 +1068,10 @@ class _AddLessonScreenState extends State<AddLessonScreen> {
     final videoUrl = videoController.text.trim();
 
     final durationText = durationController.text.trim();
-
     final duration = durationText.isEmpty ? null : int.tryParse(durationText);
+
+    final priceText = priceController.text.trim().replaceAll(',', '.');
+    final price = isFree ? 0.0 : double.tryParse(priceText);
 
     if (title.isEmpty) {
       setState(() {
@@ -1029,6 +1094,14 @@ class _AddLessonScreenState extends State<AddLessonScreen> {
       return;
     }
 
+    if (!isFree && (price == null || price <= 0)) {
+      setState(() {
+        error =
+            'Please enter a price greater than 0, or mark the lesson as free.';
+      });
+      return;
+    }
+
     setState(() {
       saving = true;
       error = null;
@@ -1044,6 +1117,7 @@ class _AddLessonScreenState extends State<AddLessonScreen> {
         'video_url': videoUrl.isEmpty ? null : videoUrl,
         'duration': duration,
         'is_free': isFree,
+        'price': price,
       });
 
       if (!mounted) return;
@@ -1076,6 +1150,7 @@ class _AddLessonScreenState extends State<AddLessonScreen> {
     youtubeController.dispose();
     videoController.dispose();
     durationController.dispose();
+    priceController.dispose();
 
     super.dispose();
   }
@@ -1207,6 +1282,24 @@ class _AddLessonScreenState extends State<AddLessonScreen> {
                               });
                             },
                     ),
+
+                    if (!isFree) ...[
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: priceController,
+                        enabled: !saving,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: const InputDecoration(
+                          labelText: 'Price (DZD)',
+                          hintText: 'Example: 2000',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.payments_outlined),
+                        ),
+                      ),
+                    ],
 
                     if (error != null) ...[
                       const SizedBox(height: 16),

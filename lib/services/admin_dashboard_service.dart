@@ -8,6 +8,7 @@ class AdminDashboardOverview {
   final int administrators;
   final int courses;
   final int publishedCourses;
+  final int draftCourses;
   final int lessons;
   final int formations;
   final int pendingPayments;
@@ -23,6 +24,7 @@ class AdminDashboardOverview {
     required this.administrators,
     required this.courses,
     required this.publishedCourses,
+    required this.draftCourses,
     required this.lessons,
     required this.formations,
     required this.pendingPayments,
@@ -61,6 +63,7 @@ class AdminDashboardOverview {
       administrators: readCount('administrators'),
       courses: readCount('courses'),
       publishedCourses: readCount('published_courses'),
+      draftCourses: readCount('draft_courses'),
       lessons: readCount('lessons'),
       formations: readCount('formations'),
       pendingPayments: readCount('pending_payments'),

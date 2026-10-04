@@ -12,6 +12,7 @@ void main() {
         'administrators': 2,
         'courses': 6,
         'published_courses': 5,
+        'draft_courses': 1,
         'lessons': 30,
         'formations': 4,
         'pending_payments': 1,
@@ -28,6 +29,7 @@ void main() {
       expect(overview.newUsersLastSevenDays, 3);
       expect(overview.teachers, 2);
       expect(overview.publishedCourses, 5);
+      expect(overview.draftCourses, 1);
       expect(overview.pendingPayments, 1);
       expect(overview.recentUsers.single['full_name'], 'Test User');
       expect(overview.recentCourses.single['title'], 'Test Course');
@@ -67,6 +69,7 @@ const Map<String, dynamic> _validOverview = {
   'administrators': 0,
   'courses': 0,
   'published_courses': 0,
+  'draft_courses': 0,
   'lessons': 0,
   'formations': 0,
   'pending_payments': 0,

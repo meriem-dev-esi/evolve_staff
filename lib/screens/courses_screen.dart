@@ -4,9 +4,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'course_details_screen.dart';
 import 'create_course_screen.dart';
 import 'edit_course_screen.dart';
+import '../services/admin_course_moderation_service.dart';
+import '../services/admin_courses_service.dart';
 
 class CoursesScreen extends StatefulWidget {
-  const CoursesScreen({super.key});
+  final String initialStatusFilter;
+
+  const CoursesScreen({super.key, this.initialStatusFilter = 'all'});
 
   @override
   State<CoursesScreen> createState() => _CoursesScreenState();
@@ -22,10 +26,14 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
   String searchQuery = '';
   String selectedFilterDomain = 'All';
+  late String selectedStatusFilter;
+  bool isAdmin = false;
+  final Set<String> moderatingCourseIds = {};
 
   @override
   void initState() {
     super.initState();
+    selectedStatusFilter = widget.initialStatusFilter;
     loadCourses();
   }
 
@@ -48,16 +56,13 @@ class _CoursesScreenState extends State<CoursesScreen> {
           userRole = profile['role'].toString();
         }
       } catch (_) {}
+      isAdmin = userRole == 'admin';
 
       List<Map<String, dynamic>> loadedCourses = [];
 
       // If admin, load all courses directly
       if (userRole == 'admin') {
-        final res = await supabase
-            .from('courses')
-            .select('*')
-            .order('created_at', ascending: false);
-        loadedCourses = List<Map<String, dynamic>>.from(res);
+        loadedCourses = await AdminCoursesService.fetch();
       } else {
         // Teacher: first try teacher_courses junction
         try {
@@ -120,13 +125,21 @@ class _CoursesScreenState extends State<CoursesScreen> {
       final desc = (c['description']?.toString() ?? '').toLowerCase();
       final domain = (c['domain']?.toString() ?? '');
 
-      final matchesSearch = searchQuery.isEmpty ||
+      final matchesSearch =
+          searchQuery.isEmpty ||
           title.contains(searchQuery.toLowerCase()) ||
           desc.contains(searchQuery.toLowerCase());
 
-      final matchesDomain = selectedFilterDomain == 'All' || domain == selectedFilterDomain;
+      final matchesDomain =
+          selectedFilterDomain == 'All' || domain == selectedFilterDomain;
+      final isPublished = c['is_published'] == true;
+      final matchesStatus = switch (selectedStatusFilter) {
+        'draft' => !isPublished,
+        'published' => isPublished,
+        _ => true,
+      };
 
-      return matchesSearch && matchesDomain;
+      return matchesSearch && matchesDomain && matchesStatus;
     }).toList();
   }
 
@@ -157,14 +170,19 @@ class _CoursesScreenState extends State<CoursesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Course'),
-        content: Text('Are you sure you want to delete "$courseTitle"? All associated lessons will be affected.'),
+        content: Text(
+          'Are you sure you want to delete "$courseTitle"? All associated lessons will be affected.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete'),
           ),
@@ -177,15 +195,88 @@ class _CoursesScreenState extends State<CoursesScreen> {
     try {
       await supabase.from('courses').delete().eq('id', courseId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Course "$courseTitle" deleted.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Course "$courseTitle" deleted.')));
       await refreshCourses();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete course: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Failed to delete course: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
+    }
+  }
+
+  Future<void> _moderateCourse(Map<String, dynamic> course) async {
+    final courseId = course['id']?.toString() ?? '';
+    if (courseId.isEmpty || moderatingCourseIds.contains(courseId)) return;
+    final wasPublished = course['is_published'] == true;
+    final shouldPublish = !wasPublished;
+    final courseTitle = course['title']?.toString() ?? 'Course';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(shouldPublish ? 'Publish course?' : 'Unpublish course?'),
+        content: Text(
+          shouldPublish
+              ? '"$courseTitle" will become visible to students.'
+              : '"$courseTitle" will no longer be visible to students.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(shouldPublish ? 'Publish' : 'Unpublish'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => moderatingCourseIds.add(courseId));
+    try {
+      await AdminCourseModerationService.setPublished(
+        courseId: courseId,
+        published: shouldPublish,
+      );
+      if (!mounted) return;
+      setState(() {
+        allCourses = allCourses.map((item) {
+          if (item['id']?.toString() == courseId) {
+            return {...item, 'is_published': shouldPublish};
+          }
+          return item;
+        }).toList();
+        _applyFilters();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            shouldPublish
+                ? '"$courseTitle" published.'
+                : '"$courseTitle" unpublished.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to update course status: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => moderatingCourseIds.remove(courseId));
+      }
     }
   }
 
@@ -194,7 +285,10 @@ class _CoursesScreenState extends State<CoursesScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: const Text('Courses', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Courses',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -215,15 +309,15 @@ class _CoursesScreenState extends State<CoursesScreen> {
                 elevation: 0,
               ),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Create Course', style: TextStyle(fontWeight: FontWeight.bold)),
+              label: const Text(
+                'Create Course',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: _buildContent(),
-      ),
+      body: Padding(padding: const EdgeInsets.all(24), child: _buildContent()),
     );
   }
 
@@ -239,11 +333,18 @@ class _CoursesScreenState extends State<CoursesScreen> {
           children: [
             const Icon(Icons.error_outline, color: Colors.red, size: 48),
             const SizedBox(height: 16),
-            const Text('Failed to load courses', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Failed to load courses',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             SizedBox(
               width: 500,
-              child: Text(error!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)),
+              child: Text(
+                error!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
@@ -256,7 +357,10 @@ class _CoursesScreenState extends State<CoursesScreen> {
       );
     }
 
-    final domains = ['All', ...allCourses.map((c) => c['domain']?.toString() ?? 'General').toSet()];
+    final domains = [
+      'All',
+      ...allCourses.map((c) => c['domain']?.toString() ?? 'General').toSet(),
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +379,10 @@ class _CoursesScreenState extends State<CoursesScreen> {
                     hintText: 'Search courses by title or description...',
                     prefixIcon: Icon(Icons.search, color: Colors.grey),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                   onChanged: (val) {
                     setState(() {
@@ -295,11 +402,35 @@ class _CoursesScreenState extends State<CoursesScreen> {
               ),
               child: Text(
                 '${displayedCourses.length} of ${allCourses.length} courses',
-                style: const TextStyle(color: Color(0xFF65A30D), fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Color(0xFF65A30D),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
         ),
+        if (isAdmin) ...[
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: DropdownButton<String>(
+              value: selectedStatusFilter,
+              items: const [
+                DropdownMenuItem(value: 'all', child: Text('All statuses')),
+                DropdownMenuItem(value: 'draft', child: Text('Needs review')),
+                DropdownMenuItem(value: 'published', child: Text('Published')),
+              ],
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() {
+                  selectedStatusFilter = value;
+                  _applyFilters();
+                });
+              },
+            ),
+          ),
+        ],
         const SizedBox(height: 16),
 
         // Domain filter tags
@@ -336,12 +467,21 @@ class _CoursesScreenState extends State<CoursesScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.school_outlined, size: 64, color: Colors.grey.shade400),
+                  Icon(
+                    Icons.school_outlined,
+                    size: 64,
+                    color: Colors.grey.shade400,
+                  ),
                   const SizedBox(height: 16),
-                  const Text('No courses found', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'No courses found',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   Text(
-                    allCourses.isEmpty ? 'Get started by creating your first course.' : 'Try changing your search query or filters.',
+                    allCourses.isEmpty
+                        ? 'Get started by creating your first course.'
+                        : 'Try changing your search query or filters.',
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 20),
@@ -414,9 +554,14 @@ class _CoursesScreenState extends State<CoursesScreen> {
                   top: 10,
                   right: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: isPublished ? const Color(0xFF84CC16) : Colors.black87,
+                      color: isPublished
+                          ? const Color(0xFF84CC16)
+                          : Colors.black87,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -443,18 +588,29 @@ class _CoursesScreenState extends State<CoursesScreen> {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
 
                     Row(
                       children: [
                         Flexible(
-                          child: _tag(domain, const Color(0xFFEFFFD8), const Color(0xFF65A30D)),
+                          child: _tag(
+                            domain,
+                            const Color(0xFFEFFFD8),
+                            const Color(0xFF65A30D),
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Flexible(
-                          child: _tag(level, Colors.grey.shade100, Colors.grey.shade700),
+                          child: _tag(
+                            level,
+                            Colors.grey.shade100,
+                            Colors.grey.shade700,
+                          ),
                         ),
                       ],
                     ),
@@ -465,7 +621,10 @@ class _CoursesScreenState extends State<CoursesScreen> {
                         description,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
 
@@ -475,13 +634,43 @@ class _CoursesScreenState extends State<CoursesScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
+                        if (isAdmin)
+                          TextButton.icon(
+                            onPressed:
+                                moderatingCourseIds.contains(
+                                  course['id']?.toString(),
+                                )
+                                ? null
+                                : () => _moderateCourse(course),
+                            icon:
+                                moderatingCourseIds.contains(
+                                  course['id']?.toString(),
+                                )
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Icon(
+                                    isPublished
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.publish_outlined,
+                                    size: 18,
+                                  ),
+                            label: Text(isPublished ? 'Unpublish' : 'Publish'),
+                          ),
                         IconButton(
                           tooltip: 'Edit Course',
                           icon: const Icon(Icons.edit_outlined, size: 20),
                           onPressed: () async {
                             final updated = await Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => EditCourseScreen(course: course)),
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    EditCourseScreen(course: course),
+                              ),
                             );
                             if (updated == true && mounted) {
                               await refreshCourses();
@@ -490,7 +679,11 @@ class _CoursesScreenState extends State<CoursesScreen> {
                         ),
                         IconButton(
                           tooltip: 'Delete Course',
-                          icon: const Icon(Icons.delete_outline, size: 20, color: Colors.red),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            size: 20,
+                            color: Colors.red,
+                          ),
                           onPressed: () => _deleteCourse(course),
                         ),
                       ],
@@ -511,7 +704,11 @@ class _CoursesScreenState extends State<CoursesScreen> {
         height: 140,
         width: double.infinity,
         color: Colors.grey.shade200,
-        child: Icon(Icons.school_outlined, size: 50, color: Colors.grey.shade500),
+        child: Icon(
+          Icons.school_outlined,
+          size: 50,
+          color: Colors.grey.shade500,
+        ),
       );
     }
 
@@ -523,7 +720,11 @@ class _CoursesScreenState extends State<CoursesScreen> {
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => Container(
           color: Colors.grey.shade200,
-          child: Icon(Icons.school_outlined, size: 50, color: Colors.grey.shade500),
+          child: Icon(
+            Icons.school_outlined,
+            size: 50,
+            color: Colors.grey.shade500,
+          ),
         ),
       ),
     );
@@ -532,12 +733,19 @@ class _CoursesScreenState extends State<CoursesScreen> {
   Widget _tag(String text, Color background, Color foreground) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Text(
         text,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: foreground, fontSize: 11, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          color: foreground,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

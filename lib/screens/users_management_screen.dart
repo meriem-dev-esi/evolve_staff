@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../services/admin_users_service.dart';
+
 class UsersManagementScreen extends StatefulWidget {
   final String initialRoleFilter;
 
@@ -33,14 +35,11 @@ class _UsersManagementScreenState extends State<UsersManagementScreen> {
     });
 
     try {
-      final res = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', ascending: false);
+      final res = await AdminUsersService.fetch();
 
       if (!mounted) return;
       setState(() {
-        users = List<Map<String, dynamic>>.from(res);
+        users = res;
         loading = false;
       });
     } catch (e) {

@@ -1,0 +1,113 @@
+EVOLVE STAFF — SOURCE AND CONFIGURATION FILE CONTENT REPORT
+Repository: meriem-dev-esi/evolve_staff
+Application: Flutter staff/admin dashboard
+
+Scope
+This report summarizes source and configuration file purpose; it does not copy
+the source code itself. Generated build/.dart_tool output and local secrets are
+excluded. Binary icons are described by role. Descriptions reflect the files
+currently present, including the local untracked admin-feature files. The
+dependency lockfile is identified but not expanded line by line.
+
+FLUTTER APPLICATION AND SCREENS
+lib/main.dart — Initializes Flutter and Supabase and starts the Evolve Staff app at login.
+lib/screens/assignments_screen.dart — Lists/filters course assignments, creates assignments, and supports submission review and grading.
+lib/screens/course_details_screen.dart — Shows course details and lessons, with links to editing, lesson management, and course files.
+lib/screens/course_files_screen.dart — Lists course file records and uploads files to Supabase Storage with saved metadata.
+lib/screens/courses_screen.dart — Lists, searches, and filters courses; includes course editing and administrator moderation actions.
+lib/screens/create_course_screen.dart — Course creation form for description, pricing, category, and publication fields.
+lib/screens/dashboard_screen.dart — Role-aware staff navigation/dashboard with statistics, activity, shortcuts, and sign-out.
+lib/screens/edit_course_screen.dart — Edits course details, pricing, and publication fields and saves to Supabase.
+lib/screens/formations_screen.dart — Lists formations/series, creates them, and shows associated courses.
+lib/screens/lesson_details_screen.dart — Displays lesson title, order, description, and edit navigation.
+lib/screens/lessons_screen.dart — Lists lessons with course context and provides course/search filters and lesson creation.
+lib/screens/login_screen.dart — Validates credentials, signs in with Supabase Auth, checks staff role, and routes authorized users.
+lib/screens/messages_screen.dart — Displays student conversations with search/unread filters and refresh on real-time message events.
+lib/screens/revenue_screen.dart — Displays recorded revenue, refunds, expenses, enrollment counts, and course totals with refresh/error states.
+lib/screens/student_progress_screen.dart — Shows student course-completion summaries with search, refresh, and per-student detail.
+lib/screens/users_management_screen.dart — Lists and filters profiles and supports administrator user management and invitations.
+
+ADMIN FEATURES CURRENTLY UNTRACKED IN THE WORKTREE
+lib/screens/admin_analytics_screen.dart — Admin analytics screen with management statistics and visualized metrics.
+lib/services/admin_analytics_service.dart — Loads and parses analytics data for the admin analytics screen.
+lib/services/admin_course_moderation_service.dart — Performs administrator course moderation operations.
+lib/services/admin_courses_service.dart — Loads and manages admin course records.
+lib/services/admin_financial_service.dart — Retrieves and validates financial report, expense, and refund data.
+lib/services/admin_users_service.dart — Loads and manages administrator user records and actions.
+lib/services/financial_report_download.dart — Shared entry point for downloading/exporting financial reports.
+lib/services/financial_report_download_stub.dart — Non-web implementation/stub for report download support.
+lib/services/financial_report_download_web.dart — Browser implementation for report file downloads.
+test/admin_analytics_service_test.dart — Tests analytics response parsing and validation.
+test/admin_courses_service_test.dart — Tests admin course response parsing/operations.
+test/admin_financial_service_test.dart — Tests financial report and ledger parsing/validation.
+test/admin_users_service_test.dart — Tests administrator user response handling.
+test/revenue_service_test.dart — Tests revenue response parsing and reconciliation checks.
+
+DATA SERVICES
+lib/services/admin_dashboard_service.dart — Parses and validates administrator dashboard metrics and recent activity from the admin-dashboard endpoint.
+lib/services/analytics_service.dart — Retrieves course, student, formation, and lesson counts from Supabase.
+lib/services/assignment_service.dart — Models assignments/submissions and implements retrieval, creation, submission, grading, and demo fallback data.
+lib/services/formation_service.dart — Models formations and retrieves/creates formations and related courses.
+lib/services/revenue_service.dart — Validates admin-revenue totals and course values and formats DZD amounts.
+lib/services/student_progress_service.dart — Models student/course/lesson progress and calculates student completion summaries.
+
+TESTS
+test/admin_dashboard_service_test.dart — Tests valid dashboard parsing and rejection of missing, negative, or malformed data.
+test/widget_test.dart — Tests login form validation and password visibility behavior.
+
+SUPABASE EDGE FUNCTIONS AND MIGRATIONS
+supabase/functions/admin-analytics/ — Admin analytics endpoint; provides protected management metrics.
+supabase/functions/admin-course-moderation/ — Protected endpoint for course moderation actions.
+supabase/functions/admin-courses/ — Protected admin course listing/management endpoint.
+supabase/functions/admin-financials/ — Protected financial ledger operations and report data.
+supabase/functions/admin-users/ — Protected administrator user listing/management endpoint.
+supabase/functions/admin-dashboard/index.ts — Returns protected dashboard summaries and recent activity.
+supabase/functions/admin-revenue/index.ts — Returns protected revenue totals and course-level breakdowns.
+supabase/migrations/20260930203100_student_teacher_messaging.sql — Adds student/teacher role-pair checks, conversation setup/backfill, and messaging row-level security.
+supabase/migrations/20261002_user_learning_preferences_rls.sql — Enables own-row access rules for learning preferences.
+supabase/.temp/ — Local Supabase CLI state; excluded from this report and not intended as application source.
+
+CI, CHECKS, AND PROJECT DOCUMENTATION
+.github/workflows/ci.yml — Runs the check script for pull requests, main pushes, and manual workflow dispatch.
+scripts/check.sh — Enforces the dependency lockfile, checks formatting, runs Flutter analysis, and executes tests.
+README.md — French-language setup, login/role, dashboard, messaging, troubleshooting, and development guidance.
+pubspec.yaml — Flutter package metadata, Dart SDK constraint, application and test dependencies, and Material icon setup.
+pubspec.lock — Pins resolved Dart/Flutter dependency versions for reproducible installation.
+analysis_options.yaml — Enables Flutter recommended lint rules and configures analyzer exclusions.
+devtools_options.yaml — Project-level Flutter DevTools extension settings.
+.metadata — Flutter tooling metadata and platform migration information.
+.gitignore — Excludes editor files, generated Flutter/Dart output, build files, and platform artifacts.
+
+FLUTTER WEB APP SHELL AND ASSETS
+web/index.html — Flutter web document shell with app metadata and Flutter bootstrap references.
+web/manifest.json — Web install/display metadata and app icon declarations.
+web/favicon.png — Browser favicon image.
+web/icons/Icon-192.png — Standard 192-pixel web app icon.
+web/icons/Icon-512.png — Standard 512-pixel web app icon.
+web/icons/Icon-maskable-192.png — Maskable 192-pixel web app icon.
+web/icons/Icon-maskable-512.png — Maskable 512-pixel web app icon.
+
+WINDOWS DESKTOP RUNNER
+windows/.gitignore — Windows-specific generated-file ignore rules.
+windows/CMakeLists.txt — Configures the Windows Flutter build and runner target.
+windows/flutter/CMakeLists.txt — Flutter-managed Windows engine and build integration.
+windows/flutter/generated_plugin_registrant.cc — Generated Windows plugin registration code.
+windows/flutter/generated_plugin_registrant.h — Declaration for generated plugin registration.
+windows/flutter/generated_plugins.cmake — Generated CMake plugin linkage list.
+windows/runner/CMakeLists.txt — Configures the native Windows executable target.
+windows/runner/main.cpp — Initializes COM and the Flutter Windows application/message loop.
+windows/runner/flutter_window.cpp — Embeds the Flutter view in a Win32 window and registers plugins.
+windows/runner/flutter_window.h — Declares the Win32 window hosting the Flutter view.
+windows/runner/win32_window.cpp — Implements DPI-aware native window lifecycle and event handling.
+windows/runner/win32_window.h — Declares reusable native window interfaces.
+windows/runner/utils.cpp — Implements console setup and Windows command-line UTF conversion.
+windows/runner/utils.h — Declares Windows runner utility functions.
+windows/runner/resource.h — Defines Windows runner resource identifiers.
+windows/runner/Runner.rc — Embeds Windows app icon and executable version metadata.
+windows/runner/runner.exe.manifest — Declares Windows compatibility and DPI awareness.
+windows/runner/resources/app_icon.ico — Windows desktop application icon.
+
+Notes: dependency folders, generated build/.dart_tool contents, and local
+environment/secrets are intentionally excluded. Newly added admin files may
+still be untracked; this report records them as present in the current
+worktree, not necessarily committed or deployed.

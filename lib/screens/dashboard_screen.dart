@@ -12,6 +12,7 @@ import 'users_management_screen.dart';
 import 'revenue_screen.dart';
 import 'messages_screen.dart';
 import 'login_screen.dart';
+import 'admin_analytics_screen.dart';
 import '../services/admin_dashboard_service.dart';
 import '../services/analytics_service.dart';
 
@@ -230,7 +231,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) await _loadDashboardData();
   }
 
+  Future<void> _openCourseModeration() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CoursesScreen(initialStatusFilter: 'draft'),
+      ),
+    );
+    if (mounted) await _loadDashboardData();
+  }
+
   void _showStatsOverview() {
+    if (widget.role == 'admin') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AdminAnalyticsScreen()),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -668,10 +687,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   subtitle: 'Of ${overview.courses} total courses',
                   icon: Icons.public_outlined,
                   color: const Color(0xFF65A30D),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CoursesScreen()),
-                  ),
+                  onTap: _openCourseModeration,
+                ),
+                _adminMetricCard(
+                  title: 'Courses needing review',
+                  value: overview.draftCourses,
+                  subtitle: 'Drafts not visible to students',
+                  icon: Icons.rate_review_outlined,
+                  color: const Color(0xFFEA580C),
+                  onTap: _openCourseModeration,
                 ),
                 _adminMetricCard(
                   title: 'Paid enrollments',
@@ -943,7 +967,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _menuItem(
                     context,
                     Icons.analytics_outlined,
-                    'Statistics',
+                    isAdmin ? 'Management Statistics' : 'Statistics',
                     onTap: _showStatsOverview,
                   ),
 

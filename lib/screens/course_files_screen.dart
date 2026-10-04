@@ -79,7 +79,8 @@ class _CourseFilesScreenState extends State<CourseFilesScreen> {
       });
 
       final courseId = widget.course['id'].toString();
-      final filePath = '$courseId/${DateTime.now().millisecondsSinceEpoch}_${file.name}';
+      final filePath =
+          '$courseId/${DateTime.now().millisecondsSinceEpoch}_${file.name}';
 
       // Upload to Supabase Storage
       await supabase.storage
@@ -138,9 +139,15 @@ class _CourseFilesScreenState extends State<CourseFilesScreen> {
         title: const Text('Delete File'),
         content: Text('Are you sure you want to delete "$fileName"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete'),
           ),
@@ -159,12 +166,17 @@ class _CourseFilesScreenState extends State<CourseFilesScreen> {
       await supabase.from('course_files').delete().eq('id', fileId);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File "$fileName" deleted.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('File "$fileName" deleted.')));
       await loadFiles();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete file: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Failed to delete file: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -173,15 +185,19 @@ class _CourseFilesScreenState extends State<CourseFilesScreen> {
     final e = (ext ?? '').toLowerCase();
     if (e == 'pdf') return Icons.picture_as_pdf_outlined;
     if (['doc', 'docx', 'txt'].contains(e)) return Icons.description_outlined;
-    if (['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(e)) return Icons.image_outlined;
-    if (['zip', 'rar', '7z', 'tar'].contains(e)) return Icons.folder_zip_outlined;
+    if (['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(e))
+      return Icons.image_outlined;
+    if (['zip', 'rar', '7z', 'tar'].contains(e))
+      return Icons.folder_zip_outlined;
     if (['mp4', 'mov', 'avi'].contains(e)) return Icons.video_file_outlined;
     return Icons.insert_drive_file_outlined;
   }
 
   String _formatFileSize(dynamic size) {
     if (size == null) return '';
-    final bytes = size is num ? size.toDouble() : double.tryParse(size.toString()) ?? 0;
+    final bytes = size is num
+        ? size.toDouble()
+        : double.tryParse(size.toString()) ?? 0;
     if (bytes < 1024) return '${bytes.toStringAsFixed(0)} B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
@@ -194,7 +210,10 @@ class _CourseFilesScreenState extends State<CourseFilesScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: const Text('Course Files', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Course Files',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -218,10 +237,16 @@ class _CourseFilesScreenState extends State<CourseFilesScreen> {
                   ? const SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.black,
+                      ),
                     )
                   : const Icon(Icons.upload_file, size: 18),
-              label: Text(uploading ? 'Uploading...' : 'Upload File', style: const TextStyle(fontWeight: FontWeight.bold)),
+              label: Text(
+                uploading ? 'Uploading...' : 'Upload File',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],
@@ -237,18 +262,39 @@ class _CourseFilesScreenState extends State<CourseFilesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(courseTitle, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text(
+                        courseTitle,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text('Manage syllabus, slides, worksheets, and downloadable resources.', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                      Text(
+                        'Manage syllabus, slides, worksheets, and downloadable resources.',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(color: const Color(0xFFEFFFD8), borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFFFD8),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Text(
                     '${files.length} file${files.length == 1 ? '' : 's'}',
-                    style: const TextStyle(color: Color(0xFF65A30D), fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Color(0xFF65A30D),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -259,73 +305,126 @@ class _CourseFilesScreenState extends State<CourseFilesScreen> {
               child: loading
                   ? const Center(child: CircularProgressIndicator())
                   : error != null
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                              const SizedBox(height: 12),
-                              Text('Error loading files: $error', style: const TextStyle(color: Colors.red)),
-                              const SizedBox(height: 16),
-                              ElevatedButton(onPressed: loadFiles, child: const Text('Retry')),
-                            ],
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 48,
                           ),
-                        )
-                      : files.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.folder_open_outlined, size: 60, color: Colors.grey.shade400),
-                                  const SizedBox(height: 12),
-                                  const Text('No files uploaded yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 6),
-                                  Text('Upload PDFs, presentation decks, or project code.', style: TextStyle(color: Colors.grey.shade600)),
-                                  const SizedBox(height: 16),
-                                  ElevatedButton.icon(
-                                    onPressed: uploading ? null : _pickAndUploadFile,
-                                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF84CC16), foregroundColor: Colors.black),
-                                    icon: const Icon(Icons.upload_file),
-                                    label: const Text('Upload First File'),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.separated(
-                              itemCount: files.length,
-                              separatorBuilder: (_, __) => const SizedBox(height: 10),
-                              itemBuilder: (context, index) {
-                                final f = files[index];
-                                final name = f['file_name']?.toString() ?? 'File';
-                                final ext = f['file_type']?.toString();
-                                final sizeStr = _formatFileSize(f['file_size']);
-                                final dateStr = f['created_at'] != null ? f['created_at'].toString().substring(0, 10) : '';
-
-                                return Card(
-                                  elevation: 0,
-                                  color: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    leading: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(color: const Color(0xFFEFFFD8), borderRadius: BorderRadius.circular(10)),
-                                      child: Icon(_getFileIcon(ext), color: const Color(0xFF65A30D)),
-                                    ),
-                                    title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                                    subtitle: Text(
-                                      [if (sizeStr.isNotEmpty) sizeStr, if (dateStr.isNotEmpty) 'Uploaded $dateStr'].join('  •  '),
-                                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                                    ),
-                                    trailing: IconButton(
-                                      tooltip: 'Delete File',
-                                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                      onPressed: () => _deleteFile(f),
-                                    ),
-                                  ),
-                                );
-                              },
+                          const SizedBox(height: 12),
+                          Text(
+                            'Error loading files: $error',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: loadFiles,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : files.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.folder_open_outlined,
+                            size: 60,
+                            color: Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'No files uploaded yet',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Upload PDFs, presentation decks, or project code.',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: uploading ? null : _pickAndUploadFile,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF84CC16),
+                              foregroundColor: Colors.black,
+                            ),
+                            icon: const Icon(Icons.upload_file),
+                            label: const Text('Upload First File'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: files.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final f = files[index];
+                        final name = f['file_name']?.toString() ?? 'File';
+                        final ext = f['file_type']?.toString();
+                        final sizeStr = _formatFileSize(f['file_size']);
+                        final dateStr = f['created_at'] != null
+                            ? f['created_at'].toString().substring(0, 10)
+                            : '';
+
+                        return Card(
+                          elevation: 0,
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            leading: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEFFFD8),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                _getFileIcon(ext),
+                                color: const Color(0xFF65A30D),
+                              ),
+                            ),
+                            title: Text(
+                              name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Text(
+                              [
+                                if (sizeStr.isNotEmpty) sizeStr,
+                                if (dateStr.isNotEmpty) 'Uploaded $dateStr',
+                              ].join('  •  '),
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                              ),
+                            ),
+                            trailing: IconButton(
+                              tooltip: 'Delete File',
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                              ),
+                              onPressed: () => _deleteFile(f),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
