@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'workshops_screen.dart';
 import 'courses_screen.dart';
 import 'create_course_screen.dart';
 import 'course_details_screen.dart';
@@ -927,6 +927,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const FormationsScreen(),
+                      ),
+                    ),
+                  ),
+                  _menuItem(
+                    context,
+                    Icons.event_note_outlined,
+                    'Workshops',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const WorkshopsScreen(),
                       ),
                     ),
                   ),
