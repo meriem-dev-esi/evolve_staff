@@ -56,11 +56,7 @@ Le menu latéral donne accès aux espaces suivants :
 | **Student Messages** | Répondre aux étudiants qui écrivent depuis le site |
 | **Statistics** | Voir les compteurs de la plateforme |
 | **Users & Roles** | Gérer les rôles et inviter des administrateurs |
-<<<<<<< HEAD
 | **Revenue** | Consulter les revenus enregistrés, leur répartition par cours et les paiements historiques sans montant |
-=======
-| **Revenue** | Consulter les revenus enregistrés et les paiements historiques sans montant |
->>>>>>> origin/main
 
 Les cartes de statistiques et les raccourcis du tableau de bord sont
 cliquables. Utilisez l’icône d’actualisation pour recharger les données.
@@ -73,7 +69,6 @@ la gestion des utilisateurs, des cours ou des paiements.
 L’invitation d’un administrateur nécessite le déploiement de la fonction
 Supabase `invite-admin` et la configuration de l’envoi d’e-mails dans Supabase
 Auth. Les revenus affichés proviennent des montants enregistrés au paiement ;
-<<<<<<< HEAD
 les anciens paiements sans montant conservé ou enregistrés à zéro sur un cours
 payant sont signalés séparément. Le prix actuel du cours n’est pas utilisé pour
 estimer un ancien paiement.
@@ -98,11 +93,6 @@ mouvement net enregistré et des alertes de baisse des paiements, d’augmentati
 des inscriptions en attente et de baisse des inscriptions par cours. Ces
 chiffres ne représentent pas un bénéfice comptable : les frais de paiement et
 les mouvements non saisis ne sont pas inclus.
-=======
-les anciens paiements sans montant conservé sont signalés séparément.
-Les changements de rôle passent par un service réservé aux administrateurs ;
-le dernier administrateur et le rôle de son propre compte sont protégés.
->>>>>>> origin/main
 
 ### Messages étudiant-formateur
 

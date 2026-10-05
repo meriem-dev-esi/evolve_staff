@@ -1,0 +1,10 @@
+{
+  "buildCommand": "bash scripts/build.sh",
+  "outputDirectory": "build/web",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
