@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+﻿import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FormationItem {
   final String id;
@@ -125,15 +125,8 @@ class FormationService {
     await _supabase.from('course_series').delete().eq('id', id);
   }
 
-<<<<<<< ours
-  /// Fetches courses linked to a formation.
-  static Future<List<Map<String, dynamic>>> fetchCoursesInFormation(
-    String formationId,
-  ) async {
-=======
   /// Fetches courses linked to a formation, ordered by order_index.
   static Future<List<Map<String, dynamic>>> fetchCoursesInFormation(String formationId) async {
->>>>>>> theirs
     try {
       final junction = await _supabase
           .from('series_courses')
