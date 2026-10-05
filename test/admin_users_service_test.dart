@@ -20,10 +20,7 @@ void main() {
     });
 
     test('rejects missing user data', () {
-      expect(
-        () => AdminUsersService.parseResponse({}),
-        throwsFormatException,
-      );
+      expect(() => AdminUsersService.parseResponse({}), throwsFormatException);
     });
 
     test('rejects malformed profiles', () {
