@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'workshops_screen.dart';
 import 'courses_screen.dart';
@@ -6,7 +6,6 @@ import 'create_course_screen.dart';
 import 'course_details_screen.dart';
 import 'lessons_screen.dart';
 import 'formations_screen.dart';
-import 'workshops_screen.dart';
 import 'student_progress_screen.dart';
 import 'assignments_screen.dart';
 import 'users_management_screen.dart';
@@ -591,7 +590,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 subtitle: Text(
                                   isAdmin
-                                      ? '$domain · ${published ? 'Published' : 'Draft'}'
+                                      ? '$domain Â· ${published ? 'Published' : 'Draft'}'
                                       : domain,
                                 ),
                                 trailing: Text(
@@ -664,7 +663,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onTap: () => _openUsers(initialRoleFilter: 'teacher'),
                 ),
                 _adminMetricCard(
-                  title: 'New accounts · 7 days',
+                  title: 'New accounts Â· 7 days',
                   value: overview.newUsersLastSevenDays,
                   subtitle: '${overview.administrators} administrators',
                   icon: Icons.person_add_alt_1_outlined,
@@ -699,7 +698,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   title: 'Paid enrollments',
                   value: overview.paidEnrollments,
                   subtitle:
-                      '${overview.lessons} lessons · ${overview.formations} formations',
+                      '${overview.lessons} lessons Â· ${overview.formations} formations',
                   icon: Icons.receipt_long_outlined,
                   color: const Color(0xFFDB2777),
                   onTap: _openRevenue,
