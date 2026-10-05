@@ -1,0 +1,8 @@
+.git
+.idea
+.dart_tool
+windows
+build
+test
+*.md
+FILE_CONTENT_REPORT.txt

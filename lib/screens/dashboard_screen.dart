@@ -6,6 +6,7 @@ import 'create_course_screen.dart';
 import 'course_details_screen.dart';
 import 'lessons_screen.dart';
 import 'formations_screen.dart';
+import 'workshops_screen.dart';
 import 'student_progress_screen.dart';
 import 'assignments_screen.dart';
 import 'users_management_screen.dart';
