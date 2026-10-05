@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../services/workshop_service.dart';
-import 'workshop_content_screen.dart';
 
 const _lime = Color(0xFF84CC16);
 
@@ -255,19 +254,6 @@ class _WorkshopsScreenState extends State<WorkshopsScreen> {
             value: published,
             activeColor: _lime,
             onChanged: (v) => _togglePublished(w, v),
-          ),
-          IconButton(
-            tooltip: 'Manage content',
-            icon: const Icon(Icons.menu_book_outlined),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => WorkshopContentScreen(
-                  workshopId: w['id'].toString(),
-                  workshopTitle: (w['title'] ?? '').toString(),
-                ),
-              ),
-            ),
           ),
           IconButton(
             tooltip: 'Edit',

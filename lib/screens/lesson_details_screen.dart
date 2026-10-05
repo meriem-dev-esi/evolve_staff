@@ -1,24 +1,17 @@
-
 import 'package:flutter/material.dart';
 
 class LessonDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> lesson;
 
-  const LessonDetailsScreen({
-    super.key,
-    required this.lesson,
-  });
+  const LessonDetailsScreen({super.key, required this.lesson});
 
   @override
   Widget build(BuildContext context) {
-    final title =
-        lesson['title']?.toString() ?? 'Untitled Lesson';
+    final title = lesson['title']?.toString() ?? 'Untitled Lesson';
 
-    final description =
-        lesson['description']?.toString() ?? '';
+    final description = lesson['description']?.toString() ?? '';
 
-    final orderIndex =
-        lesson['order_index']?.toString() ?? '0';
+    final orderIndex = lesson['order_index']?.toString() ?? '0';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
@@ -26,9 +19,7 @@ class LessonDetailsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Lesson Details',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -40,9 +31,7 @@ class LessonDetailsScreen extends StatelessWidget {
 
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 900,
-            ),
+            constraints: const BoxConstraints(maxWidth: 900),
 
             child: Card(
               elevation: 0,
@@ -52,8 +41,7 @@ class LessonDetailsScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(28),
 
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     Text(
@@ -103,12 +91,8 @@ class LessonDetailsScreen extends StatelessWidget {
                       onPressed: () {
                         // Edit lesson - next step
                       },
-                      icon: const Icon(
-                        Icons.edit_outlined,
-                      ),
-                      label: const Text(
-                        'Edit Lesson',
-                      ),
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('Edit Lesson'),
                     ),
                   ],
                 ),

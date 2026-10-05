@@ -73,9 +73,7 @@ class StudentProgressService {
             .eq('role', 'student');
       } catch (_) {
         try {
-          profilesData = await _supabase
-              .from('profiles')
-              .select('*');
+          profilesData = await _supabase.from('profiles').select('*');
         } catch (_) {
           profilesData = [];
         }
@@ -88,13 +86,12 @@ class StudentProgressService {
       // 2. Fetch all courses
       List<dynamic> coursesData = [];
       try {
-        coursesData = await _supabase
-            .from('courses')
-            .select('id, title');
+        coursesData = await _supabase.from('courses').select('id, title');
       } catch (_) {}
 
       final Map<String, String> courseTitles = {
-        for (var c in coursesData) c['id'].toString(): c['title']?.toString() ?? 'Course'
+        for (var c in coursesData)
+          c['id'].toString(): c['title']?.toString() ?? 'Course',
       };
 
       // 3. Fetch all lessons to know how many lessons per course
@@ -108,7 +105,9 @@ class StudentProgressService {
       final Map<String, List<Map<String, dynamic>>> courseLessonsMap = {};
       for (var l in lessonsData) {
         final cId = l['course_id']?.toString() ?? '';
-        courseLessonsMap.putIfAbsent(cId, () => []).add(Map<String, dynamic>.from(l));
+        courseLessonsMap
+            .putIfAbsent(cId, () => [])
+            .add(Map<String, dynamic>.from(l));
       }
 
       // 4. Fetch enrollments
@@ -124,7 +123,9 @@ class StudentProgressService {
       try {
         progressData = await _supabase
             .from('lesson_progress')
-            .select('user_id, lesson_id, completed, progress_percentage, updated_at');
+            .select(
+              'user_id, lesson_id, completed, progress_percentage, updated_at',
+            );
       } catch (_) {}
 
       // Group lesson progress by user_id -> set of completed lesson_ids
@@ -132,7 +133,8 @@ class StudentProgressService {
       for (var p in progressData) {
         final uId = p['user_id']?.toString() ?? '';
         final lId = p['lesson_id']?.toString() ?? '';
-        final isCompleted = p['completed'] == true || (p['progress_percentage'] ?? 0) >= 100;
+        final isCompleted =
+            p['completed'] == true || (p['progress_percentage'] ?? 0) >= 100;
         if (isCompleted) {
           userCompletedLessons.putIfAbsent(uId, () => {}).add(lId);
         }
@@ -181,36 +183,44 @@ class StudentProgressService {
           final title = courseTitles[cId] ?? 'Course $cId';
           final cLessons = courseLessonsMap[cId] ?? [];
           final totalInCourse = cLessons.length;
-          final completedInCourse = cLessons.where((l) => completedLessonIds.contains(l['id'].toString())).length;
+          final completedInCourse = cLessons
+              .where((l) => completedLessonIds.contains(l['id'].toString()))
+              .length;
 
           totalStudentLessons += totalInCourse;
           completedStudentLessons += completedInCourse;
 
-          final double pct = totalInCourse > 0 ? (completedInCourse / totalInCourse) * 100 : 0.0;
-          coursesProg.add(StudentCourseProgress(
-            courseId: cId,
-            courseTitle: title,
-            totalLessons: totalInCourse,
-            completedLessons: completedInCourse,
-            percentage: pct,
-          ));
+          final double pct = totalInCourse > 0
+              ? (completedInCourse / totalInCourse) * 100
+              : 0.0;
+          coursesProg.add(
+            StudentCourseProgress(
+              courseId: cId,
+              courseTitle: title,
+              totalLessons: totalInCourse,
+              completedLessons: completedInCourse,
+              percentage: pct,
+            ),
+          );
         }
 
         final double overallPct = totalStudentLessons > 0
             ? (completedStudentLessons / totalStudentLessons) * 100
             : 0.0;
 
-        results.add(StudentOverview(
-          id: studentId,
-          fullName: fullName,
-          email: email,
-          avatarUrl: avatarUrl,
-          enrolledCoursesCount: activeCourseIds.length,
-          completedLessonsCount: completedStudentLessons,
-          totalLessonsCount: totalStudentLessons,
-          overallPercentage: overallPct,
-          coursesProgress: coursesProg,
-        ));
+        results.add(
+          StudentOverview(
+            id: studentId,
+            fullName: fullName,
+            email: email,
+            avatarUrl: avatarUrl,
+            enrolledCoursesCount: activeCourseIds.length,
+            completedLessonsCount: completedStudentLessons,
+            totalLessonsCount: totalStudentLessons,
+            overallPercentage: overallPct,
+            coursesProgress: coursesProg,
+          ),
+        );
       }
 
       return results;
@@ -245,7 +255,8 @@ class StudentProgressService {
       }
 
       final Map<String, Map<String, dynamic>> progressMap = {
-        for (var p in progress) p['lesson_id'].toString(): Map<String, dynamic>.from(p)
+        for (var p in progress)
+          p['lesson_id'].toString(): Map<String, dynamic>.from(p),
       };
 
       return lessons.map<LessonProgressItem>((l) {
@@ -255,7 +266,9 @@ class StudentProgressService {
           lessonId: lId,
           title: l['title']?.toString() ?? 'Lesson',
           orderIndex: (l['order_index'] as num?)?.toInt() ?? 1,
-          completed: p?['completed'] == true || (p?['progress_percentage'] ?? 0) >= 100,
+          completed:
+              p?['completed'] == true ||
+              (p?['progress_percentage'] ?? 0) >= 100,
           progressPercentage: (p?['progress_percentage'] as num?)?.toInt() ?? 0,
           updatedAt: p?['updated_at']?.toString(),
         );

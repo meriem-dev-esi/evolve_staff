@@ -21,7 +21,10 @@ class FormationItem {
     required this.coursesCount,
   });
 
-  factory FormationItem.fromMap(Map<String, dynamic> map, {int coursesCount = 0}) {
+  factory FormationItem.fromMap(
+    Map<String, dynamic> map, {
+    int coursesCount = 0,
+  }) {
     return FormationItem(
       id: map['id'].toString(),
       title: map['title']?.toString() ?? 'Untitled Formation',
@@ -107,7 +110,9 @@ class FormationService {
   }
 
   /// Fetches courses linked to a formation.
-  static Future<List<Map<String, dynamic>>> fetchCoursesInFormation(String formationId) async {
+  static Future<List<Map<String, dynamic>>> fetchCoursesInFormation(
+    String formationId,
+  ) async {
     try {
       final junction = await _supabase
           .from('series_courses')

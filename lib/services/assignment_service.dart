@@ -21,14 +21,19 @@ class Assignment {
     required this.createdAt,
   });
 
-  factory Assignment.fromMap(Map<String, dynamic> map, {String courseTitle = 'Course'}) {
+  factory Assignment.fromMap(
+    Map<String, dynamic> map, {
+    String courseTitle = 'Course',
+  }) {
     return Assignment(
       id: map['id'].toString(),
       courseId: map['course_id']?.toString() ?? '',
       courseTitle: courseTitle,
       title: map['title']?.toString() ?? 'Untitled Assignment',
       description: map['description']?.toString() ?? '',
-      dueDate: map['due_date'] != null ? DateTime.tryParse(map['due_date'].toString()) : null,
+      dueDate: map['due_date'] != null
+          ? DateTime.tryParse(map['due_date'].toString())
+          : null,
       maxScore: (map['max_score'] as num?)?.toInt() ?? 100,
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
@@ -73,7 +78,8 @@ class AssignmentService {
       courseId: 'demo-c-1',
       courseTitle: 'Full-Stack Web Development',
       title: 'Build a REST API with Authentication',
-      description: 'Implement JWT authentication and CRUD endpoints for a blog platform.',
+      description:
+          'Implement JWT authentication and CRUD endpoints for a blog platform.',
       dueDate: DateTime.now().add(const Duration(days: 7)),
       maxScore: 100,
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
@@ -83,7 +89,8 @@ class AssignmentService {
       courseId: 'demo-c-1',
       courseTitle: 'Full-Stack Web Development',
       title: 'Responsive Dashboard UI',
-      description: 'Design and build a responsive analytics dashboard with dark mode support.',
+      description:
+          'Design and build a responsive analytics dashboard with dark mode support.',
       dueDate: DateTime.now().add(const Duration(days: 3)),
       maxScore: 100,
       createdAt: DateTime.now().subtract(const Duration(days: 4)),
@@ -98,7 +105,8 @@ class AssignmentService {
       studentName: 'Karim Mansouri',
       studentEmail: 'karim@example.com',
       submittedAt: DateTime.now().subtract(const Duration(hours: 14)),
-      content: 'https://github.com/karim/rest-api-challenge - Implemented with Node.js and PostgreSQL with tests.',
+      content:
+          'https://github.com/karim/rest-api-challenge - Implemented with Node.js and PostgreSQL with tests.',
       grade: 92,
       feedback: 'Excellent clean architecture and comprehensive unit tests!',
       isGraded: true,
@@ -110,7 +118,8 @@ class AssignmentService {
       studentName: 'Amina Belkacem',
       studentEmail: 'amina@example.com',
       submittedAt: DateTime.now().subtract(const Duration(hours: 5)),
-      content: 'https://github.com/amina/jwt-blog-api - All requirements fulfilled.',
+      content:
+          'https://github.com/amina/jwt-blog-api - All requirements fulfilled.',
       grade: null,
       feedback: null,
       isGraded: false,
@@ -122,7 +131,8 @@ class AssignmentService {
       studentName: 'Yassine Taleb',
       studentEmail: 'yassine@example.com',
       submittedAt: DateTime.now().subtract(const Duration(days: 1)),
-      content: 'https://vercel.app/yassine-dashboard - Responsive Tailwind UI with charts.',
+      content:
+          'https://vercel.app/yassine-dashboard - Responsive Tailwind UI with charts.',
       grade: null,
       feedback: null,
       isGraded: false,
@@ -164,13 +174,17 @@ class AssignmentService {
     required int maxScore,
   }) async {
     try {
-      final res = await _supabase.from('assignments').insert({
-        'course_id': courseId,
-        'title': title,
-        'description': description,
-        'due_date': dueDate?.toIso8601String(),
-        'max_score': maxScore,
-      }).select().single();
+      final res = await _supabase
+          .from('assignments')
+          .insert({
+            'course_id': courseId,
+            'title': title,
+            'description': description,
+            'due_date': dueDate?.toIso8601String(),
+            'max_score': maxScore,
+          })
+          .select()
+          .single();
 
       return Assignment.fromMap(res, courseTitle: courseTitle);
     } catch (_) {
@@ -217,15 +231,20 @@ class AssignmentService {
           studentId: item['student_id']?.toString() ?? '',
           studentName: profile['full_name']?.toString() ?? 'Student',
           studentEmail: profile['email']?.toString() ?? '',
-          submittedAt: DateTime.tryParse(item['submitted_at'].toString()) ?? DateTime.now(),
-          content: item['file_url']?.toString() ?? item['content']?.toString() ?? '',
+          submittedAt:
+              DateTime.tryParse(item['submitted_at'].toString()) ??
+              DateTime.now(),
+          content:
+              item['file_url']?.toString() ?? item['content']?.toString() ?? '',
           grade: gradeNum?.toDouble(),
           feedback: item['feedback']?.toString(),
           isGraded: gradeNum != null,
         );
       }).toList();
     } catch (_) {
-      return _localSubmissions.where((s) => s.assignmentId == assignmentId).toList();
+      return _localSubmissions
+          .where((s) => s.assignmentId == assignmentId)
+          .toList();
     }
   }
 
@@ -236,10 +255,10 @@ class AssignmentService {
     required String feedback,
   }) async {
     try {
-      await _supabase.from('submissions').update({
-        'grade': grade,
-        'feedback': feedback,
-      }).eq('id', submissionId);
+      await _supabase
+          .from('submissions')
+          .update({'grade': grade, 'feedback': feedback})
+          .eq('id', submissionId);
     } catch (_) {
       final sub = _localSubmissions.firstWhere(
         (s) => s.id == submissionId,

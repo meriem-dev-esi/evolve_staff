@@ -46,7 +46,8 @@ class _StudentProgressScreenState extends State<StudentProgressScreen> {
     if (searchQuery.isEmpty) return allStudents;
     final q = searchQuery.toLowerCase();
     return allStudents.where((s) {
-      return s.fullName.toLowerCase().contains(q) || s.email.toLowerCase().contains(q);
+      return s.fullName.toLowerCase().contains(q) ||
+          s.email.toLowerCase().contains(q);
     }).toList();
   }
 
@@ -55,7 +56,9 @@ class _StudentProgressScreenState extends State<StudentProgressScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) => _StudentDetailSheet(student: student),
     );
   }
@@ -66,15 +69,22 @@ class _StudentProgressScreenState extends State<StudentProgressScreen> {
 
     // Aggregate statistics
     int totalStudents = allStudents.length;
-    int totalCompletedLessons = allStudents.fold(0, (acc, s) => acc + s.completedLessonsCount);
+    int totalCompletedLessons = allStudents.fold(
+      0,
+      (acc, s) => acc + s.completedLessonsCount,
+    );
     double avgCompletion = totalStudents > 0
-        ? allStudents.fold(0.0, (acc, s) => acc + s.overallPercentage) / totalStudents
+        ? allStudents.fold(0.0, (acc, s) => acc + s.overallPercentage) /
+              totalStudents
         : 0.0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: const Text('Student Progress Tracking', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Student Progress Tracking',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -90,137 +100,229 @@ class _StudentProgressScreenState extends State<StudentProgressScreen> {
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : error != null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Error: $error',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: loadStudents,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Stat Cards
+                  Row(
                     children: [
-                      const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                      const SizedBox(height: 12),
-                      Text('Error: $error', style: const TextStyle(color: Colors.red)),
-                      const SizedBox(height: 16),
-                      ElevatedButton(onPressed: loadStudents, child: const Text('Retry')),
+                      _statCard(
+                        'Total Students',
+                        totalStudents.toString(),
+                        Icons.people_outline,
+                        const Color(0xFF84CC16),
+                      ),
+                      const SizedBox(width: 16),
+                      _statCard(
+                        'Avg. Course Completion',
+                        '${avgCompletion.toStringAsFixed(1)}%',
+                        Icons.pie_chart_outline,
+                        const Color(0xFF3B82F6),
+                      ),
+                      const SizedBox(width: 16),
+                      _statCard(
+                        'Completed Lessons',
+                        totalCompletedLessons.toString(),
+                        Icons.check_circle_outline,
+                        const Color(0xFF10B981),
+                      ),
                     ],
                   ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Stat Cards
-                      Row(
-                        children: [
-                          _statCard('Total Students', totalStudents.toString(), Icons.people_outline, const Color(0xFF84CC16)),
-                          const SizedBox(width: 16),
-                          _statCard('Avg. Course Completion', '${avgCompletion.toStringAsFixed(1)}%', Icons.pie_chart_outline, const Color(0xFF3B82F6)),
-                          const SizedBox(width: 16),
-                          _statCard('Completed Lessons', totalCompletedLessons.toString(), Icons.check_circle_outline, const Color(0xFF10B981)),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                      // Search bar
-                      Container(
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                        child: TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'Search students by name or email...',
-                            prefixIcon: Icon(Icons.search, color: Colors.grey),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          ),
-                          onChanged: (v) => setState(() => searchQuery = v),
+                  // Search bar
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Search students by name or email...',
+                        prefixIcon: Icon(Icons.search, color: Colors.grey),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      onChanged: (v) => setState(() => searchQuery = v),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-                      // Student list
-                      if (displayed.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(40),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-                          child: Column(
-                            children: [
-                              Icon(Icons.person_search_outlined, size: 56, color: Colors.grey.shade400),
-                              const SizedBox(height: 12),
-                              const Text('No students found', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 6),
-                              Text('Enrolled students will appear here with live completion rates.', style: TextStyle(color: Colors.grey.shade600)),
-                            ],
+                  // Student list
+                  if (displayed.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(40),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.person_search_outlined,
+                            size: 56,
+                            color: Colors.grey.shade400,
                           ),
-                        )
-                      else
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: displayed.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final s = displayed[index];
-                            final pct = s.overallPercentage;
-                            final color = pct >= 80 ? const Color(0xFF16A34A) : (pct >= 40 ? const Color(0xFF65A30D) : const Color(0xFFF59E0B));
+                          const SizedBox(height: 12),
+                          const Text(
+                            'No students found',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Enrolled students will appear here with live completion rates.',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: displayed.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final s = displayed[index];
+                        final pct = s.overallPercentage;
+                        final color = pct >= 80
+                            ? const Color(0xFF16A34A)
+                            : (pct >= 40
+                                  ? const Color(0xFF65A30D)
+                                  : const Color(0xFFF59E0B));
 
-                            return Card(
-                              elevation: 0,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                leading: CircleAvatar(
-                                  radius: 24,
-                                  backgroundColor: const Color(0xFF84CC16).withValues(alpha: 0.2),
-                                  child: Text(
-                                    s.fullName.isNotEmpty ? s.fullName[0].toUpperCase() : 'S',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                        return Card(
+                          elevation: 0,
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            leading: CircleAvatar(
+                              radius: 24,
+                              backgroundColor: const Color(
+                                0xFF84CC16,
+                              ).withValues(alpha: 0.2),
+                              child: Text(
+                                s.fullName.isNotEmpty
+                                    ? s.fullName[0].toUpperCase()
+                                    : 'S',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              s.fullName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text(
+                                  s.email.isNotEmpty
+                                      ? s.email
+                                      : 'No email provided',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 13,
                                   ),
                                 ),
-                                title: Text(s.fullName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                const SizedBox(height: 8),
+                                Row(
                                   children: [
-                                    const SizedBox(height: 4),
-                                    Text(s.email.isNotEmpty ? s.email : 'No email provided', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          '${s.enrolledCoursesCount} Courses  •  ${s.completedLessonsCount} / ${s.totalLessonsCount} Lessons',
-                                          style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.w500),
-                                        ),
-                                        const Spacer(),
-                                        Text('${pct.toStringAsFixed(0)}%', style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
-                                      ],
+                                    Text(
+                                      '${s.enrolledCoursesCount} Courses  •  ${s.completedLessonsCount} / ${s.totalLessonsCount} Lessons',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                    const SizedBox(height: 6),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: LinearProgressIndicator(
-                                        value: s.totalLessonsCount > 0 ? (s.completedLessonsCount / s.totalLessonsCount) : 0,
-                                        backgroundColor: Colors.grey.shade200,
-                                        valueColor: AlwaysStoppedAnimation<Color>(color),
-                                        minHeight: 6,
+                                    const Spacer(),
+                                    Text(
+                                      '${pct.toStringAsFixed(0)}%',
+                                      style: TextStyle(
+                                        color: color,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
                                       ),
                                     ),
                                   ],
                                 ),
-                                trailing: ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFF7F7F7),
-                                    foregroundColor: Colors.black,
-                                    elevation: 0,
+                                const SizedBox(height: 6),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: s.totalLessonsCount > 0
+                                        ? (s.completedLessonsCount /
+                                              s.totalLessonsCount)
+                                        : 0,
+                                    backgroundColor: Colors.grey.shade200,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      color,
+                                    ),
+                                    minHeight: 6,
                                   ),
-                                  onPressed: () => _showStudentDetail(s),
-                                  icon: const Icon(Icons.analytics_outlined, size: 16),
-                                  label: const Text('Inspect'),
                                 ),
+                              ],
+                            ),
+                            trailing: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFF7F7F7),
+                                foregroundColor: Colors.black,
+                                elevation: 0,
                               ),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
-                ),
+                              onPressed: () => _showStudentDetail(s),
+                              icon: const Icon(
+                                Icons.analytics_outlined,
+                                size: 16,
+                              ),
+                              label: const Text('Inspect'),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -228,12 +330,18 @@ class _StudentProgressScreenState extends State<StudentProgressScreen> {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Icon(icon, color: color, size: 28),
             ),
             const SizedBox(width: 16),
@@ -241,9 +349,18 @@ class _StudentProgressScreenState extends State<StudentProgressScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(title, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                  Text(
+                    title,
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
                 ],
               ),
             ),
@@ -312,7 +429,11 @@ class _StudentDetailSheetState extends State<_StudentDetailSheet> {
                   backgroundColor: const Color(0xFF84CC16),
                   child: Text(
                     s.fullName.isNotEmpty ? s.fullName[0].toUpperCase() : 'S',
-                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -320,12 +441,27 @@ class _StudentDetailSheetState extends State<_StudentDetailSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(s.fullName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      Text(s.email.isNotEmpty ? s.email : 'No email provided', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                      Text(
+                        s.fullName,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        s.email.isNotEmpty ? s.email : 'No email provided',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
               ],
             ),
             const Divider(height: 32),
@@ -334,11 +470,16 @@ class _StudentDetailSheetState extends State<_StudentDetailSheet> {
             if (s.coursesProgress.isEmpty)
               const Expanded(
                 child: Center(
-                  child: Text('This student has not enrolled in any courses yet.'),
+                  child: Text(
+                    'This student has not enrolled in any courses yet.',
+                  ),
                 ),
               )
             else ...[
-              const Text('Enrolled Courses:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              const Text(
+                'Enrolled Courses:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
               const SizedBox(height: 10),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -348,7 +489,9 @@ class _StudentDetailSheetState extends State<_StudentDetailSheet> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
-                        label: Text('${cp.courseTitle} (${cp.percentage.toStringAsFixed(0)}%)'),
+                        label: Text(
+                          '${cp.courseTitle} (${cp.percentage.toStringAsFixed(0)}%)',
+                        ),
                         selected: isSelected,
                         selectedColor: const Color(0xFF84CC16),
                         onSelected: (_) => _selectCourse(cp.courseId),
@@ -360,37 +503,64 @@ class _StudentDetailSheetState extends State<_StudentDetailSheet> {
               const SizedBox(height: 16),
 
               // Lesson Details
-              const Text('Lesson Progress Details:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              const Text(
+                'Lesson Progress Details:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
               const SizedBox(height: 10),
 
               Expanded(
                 child: loadingLessons
                     ? const Center(child: CircularProgressIndicator())
                     : lessonItems.isEmpty
-                        ? Center(child: Text('No lessons found in this course.', style: TextStyle(color: Colors.grey.shade600)))
-                        : ListView.separated(
-                            itemCount: lessonItems.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 8),
-                            itemBuilder: (context, i) {
-                              final l = lessonItems[i];
-                              return ListTile(
-                                tileColor: const Color(0xFFF7F7F7),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                leading: Icon(
-                                  l.completed ? Icons.check_circle : Icons.radio_button_unchecked,
-                                  color: l.completed ? const Color(0xFF16A34A) : Colors.grey,
-                                  size: 24,
-                                ),
-                                title: Text(l.title, style: TextStyle(fontWeight: FontWeight.w600, decoration: l.completed ? TextDecoration.lineThrough : null)),
-                                subtitle: Text(
-                                  l.completed
-                                      ? 'Completed ${l.updatedAt != null ? '• ${l.updatedAt!.substring(0, 10)}' : ''}'
-                                      : 'Incomplete (${l.progressPercentage}%)',
-                                  style: TextStyle(color: l.completed ? const Color(0xFF16A34A) : Colors.grey.shade600, fontSize: 12),
-                                ),
-                              );
-                            },
-                          ),
+                    ? Center(
+                        child: Text(
+                          'No lessons found in this course.',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: lessonItems.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, i) {
+                          final l = lessonItems[i];
+                          return ListTile(
+                            tileColor: const Color(0xFFF7F7F7),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            leading: Icon(
+                              l.completed
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                              color: l.completed
+                                  ? const Color(0xFF16A34A)
+                                  : Colors.grey,
+                              size: 24,
+                            ),
+                            title: Text(
+                              l.title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                decoration: l.completed
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                              ),
+                            ),
+                            subtitle: Text(
+                              l.completed
+                                  ? 'Completed ${l.updatedAt != null ? '• ${l.updatedAt!.substring(0, 10)}' : ''}'
+                                  : 'Incomplete (${l.progressPercentage}%)',
+                              style: TextStyle(
+                                color: l.completed
+                                    ? const Color(0xFF16A34A)
+                                    : Colors.grey.shade600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           ],

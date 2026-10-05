@@ -48,12 +48,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
     'Advanced',
   ];
 
-  final List<String> types = [
-    'Course',
-    'Workshop',
-    'Bootcamp',
-    'Masterclass',
-  ];
+  final List<String> types = ['Course', 'Workshop', 'Bootcamp', 'Masterclass'];
 
   @override
   void dispose() {
@@ -167,7 +162,10 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: const Text('Create New Course', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Create New Course',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -179,16 +177,30 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
             constraints: const BoxConstraints(maxWidth: 800),
             child: Card(
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Course Information', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Course Information',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    Text('Define title, domain, level and curriculum parameters.', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                    Text(
+                      'Define title, domain, level and curriculum parameters.',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
+                    ),
                     const SizedBox(height: 24),
 
                     // Title
@@ -211,7 +223,8 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                       maxLines: 4,
                       decoration: const InputDecoration(
                         labelText: 'Description',
-                        hintText: 'Describe what students will learn in this course...',
+                        hintText:
+                            'Describe what students will learn in this course...',
                         border: OutlineInputBorder(),
                         alignLabelWithHint: true,
                       ),
@@ -229,8 +242,17 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                               border: OutlineInputBorder(),
                               prefixIcon: Icon(Icons.category_outlined),
                             ),
-                            items: domains.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                            onChanged: saving ? null : (v) => setState(() => selectedDomain = v!),
+                            items: domains
+                                .map(
+                                  (d) => DropdownMenuItem(
+                                    value: d,
+                                    child: Text(d),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: saving
+                                ? null
+                                : (v) => setState(() => selectedDomain = v!),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -242,8 +264,17 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                               border: OutlineInputBorder(),
                               prefixIcon: Icon(Icons.bar_chart_outlined),
                             ),
-                            items: levels.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
-                            onChanged: saving ? null : (v) => setState(() => selectedLevel = v!),
+                            items: levels
+                                .map(
+                                  (l) => DropdownMenuItem(
+                                    value: l,
+                                    child: Text(l),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: saving
+                                ? null
+                                : (v) => setState(() => selectedLevel = v!),
                           ),
                         ),
                       ],
@@ -308,7 +339,10 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                             height: 100,
                             color: Colors.grey.shade200,
                             alignment: Alignment.center,
-                            child: const Text('Could not load image preview', style: TextStyle(color: Colors.grey)),
+                            child: const Text(
+                              'Could not load image preview',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                           ),
                         ),
                       ),
@@ -327,24 +361,40 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                       divisions: 20,
                       activeColor: const Color(0xFF84CC16),
                       label: '${practicePercentage.round()}%',
-                      onChanged: saving ? null : (v) => setState(() => practicePercentage = v),
+                      onChanged: saving
+                          ? null
+                          : (v) => setState(() => practicePercentage = v),
                     ),
                     const SizedBox(height: 16),
 
                     // Switches
                     SwitchListTile(
-                      title: const Text('Publish Immediately', style: TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: const Text('Make this course visible to students immediately upon creation.'),
+                      title: const Text(
+                        'Publish Immediately',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: const Text(
+                        'Make this course visible to students immediately upon creation.',
+                      ),
                       value: isPublished,
                       activeColor: const Color(0xFF84CC16),
-                      onChanged: saving ? null : (v) => setState(() => isPublished = v),
+                      onChanged: saving
+                          ? null
+                          : (v) => setState(() => isPublished = v),
                     ),
                     SwitchListTile(
-                      title: const Text('Trending / Featured', style: TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: const Text('Feature this course in prominent dashboard spotlights.'),
+                      title: const Text(
+                        'Trending / Featured',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: const Text(
+                        'Feature this course in prominent dashboard spotlights.',
+                      ),
                       value: isTrending,
                       activeColor: const Color(0xFF84CC16),
-                      onChanged: saving ? null : (v) => setState(() => isTrending = v),
+                      onChanged: saving
+                          ? null
+                          : (v) => setState(() => isTrending = v),
                     ),
 
                     if (error != null) ...[
@@ -355,7 +405,10 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                           color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text(error!, style: const TextStyle(color: Colors.red)),
+                        child: Text(
+                          error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
                       ),
                     ],
 
@@ -366,7 +419,9 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: saving ? null : () => Navigator.pop(context),
+                          onPressed: saving
+                              ? null
+                              : () => Navigator.pop(context),
                           child: const Text('Cancel'),
                         ),
                         const SizedBox(width: 16),
@@ -375,13 +430,19 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF84CC16),
                             foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 14,
+                            ),
                           ),
                           icon: saving
                               ? const SizedBox(
                                   width: 18,
                                   height: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.black,
+                                  ),
                                 )
                               : const Icon(Icons.check_circle_outline),
                           label: Text(
