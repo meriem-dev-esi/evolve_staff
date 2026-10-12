@@ -195,8 +195,8 @@ CREATE OR REPLACE FUNCTION public.guard_course_publication()
 RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
   IF auth.role() = 'authenticated' THEN
-    IF (TG_OP = 'INSERT' AND NEW.published IS TRUE)
-       OR (TG_OP = 'UPDATE' AND NEW.published IS DISTINCT FROM OLD.published) THEN
+    IF (TG_OP = 'INSERT' AND NEW.is_published IS TRUE)
+       OR (TG_OP = 'UPDATE' AND NEW.is_published IS DISTINCT FROM OLD.is_published) THEN
       IF NOT EXISTS (
         SELECT 1 FROM public.profiles
         WHERE id = auth.uid() AND role = 'admin'

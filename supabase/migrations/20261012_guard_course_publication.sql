@@ -8,9 +8,9 @@ AS $$
 BEGIN
   -- Vérification pour les requêtes exécutées par un utilisateur authentifié
   IF auth.role() = 'authenticated' THEN
-    -- Détection d'une publication à la création ou d'un changement de statut de publication
-    IF (TG_OP = 'INSERT' AND NEW.published IS TRUE)
-       OR (TG_OP = 'UPDATE' AND NEW.published IS DISTINCT FROM OLD.published) THEN
+    -- Détection d'une publication à la création ou d'un changement de statut de publication (colonne is_published)
+    IF (TG_OP = 'INSERT' AND NEW.is_published IS TRUE)
+       OR (TG_OP = 'UPDATE' AND NEW.is_published IS DISTINCT FROM OLD.is_published) THEN
       
       IF NOT EXISTS (
         SELECT 1
@@ -32,7 +32,7 @@ DROP TRIGGER IF EXISTS guard_course_publication
   ON public.courses;
 
 CREATE TRIGGER guard_course_publication
-  BEFORE INSERT OR UPDATE OF published
+  BEFORE INSERT OR UPDATE OF is_published
   ON public.courses
   FOR EACH ROW
   EXECUTE FUNCTION public.guard_course_publication();
