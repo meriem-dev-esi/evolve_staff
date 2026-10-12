@@ -1,4 +1,4 @@
-﻿import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WorkshopLesson {
   final String? id;
@@ -16,19 +16,19 @@ class WorkshopLesson {
   });
 
   factory WorkshopLesson.fromMap(Map<String, dynamic> m) => WorkshopLesson(
-        id: m['id'] as String,
-        workshopId: m['workshop_id'] as String,
-        title: m['title'] as String,
-        description: m['description'] as String?,
-        position: (m['position'] as int?) ?? 0,
-      );
+    id: m['id'] as String,
+    workshopId: m['workshop_id'] as String,
+    title: m['title'] as String,
+    description: m['description'] as String?,
+    position: (m['position'] as int?) ?? 0,
+  );
 
   Map<String, dynamic> toMap() => {
-        'workshop_id': workshopId,
-        'title': title,
-        'description': description,
-        'position': position,
-      };
+    'workshop_id': workshopId,
+    'title': title,
+    'description': description,
+    'position': position,
+  };
 }
 
 class WorkshopLink {
@@ -47,19 +47,19 @@ class WorkshopLink {
   });
 
   factory WorkshopLink.fromMap(Map<String, dynamic> m) => WorkshopLink(
-        id: m['id'] as String,
-        workshopId: m['workshop_id'] as String,
-        lessonId: m['lesson_id'] as String?,
-        label: m['label'] as String,
-        url: m['url'] as String,
-      );
+    id: m['id'] as String,
+    workshopId: m['workshop_id'] as String,
+    lessonId: m['lesson_id'] as String?,
+    label: m['label'] as String,
+    url: m['url'] as String,
+  );
 
   Map<String, dynamic> toMap() => {
-        'workshop_id': workshopId,
-        'lesson_id': lessonId,
-        'label': label,
-        'url': url,
-      };
+    'workshop_id': workshopId,
+    'lesson_id': lessonId,
+    'label': label,
+    'url': url,
+  };
 }
 
 class WorkshopContentService {

@@ -7,11 +7,7 @@ echo "Resolving Flutter dependencies from pubspec.lock..."
 flutter pub get --enforce-lockfile
 
 echo "Checking Dart formatting..."
-dart format --output=none --set-exit-if-changed \
-  lib/screens/dashboard_screen.dart \
-  lib/screens/login_screen.dart \
-  lib/screens/messages_screen.dart \
-  test
+dart format --output=none --set-exit-if-changed lib test
 
 echo "Analyzing Flutter application..."
 flutter analyze --no-pub --no-fatal-infos
