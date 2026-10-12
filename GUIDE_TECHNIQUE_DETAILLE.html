@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Guide Technique — Evolve Staff</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 12mm 14mm 12mm 14mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, "Segoe UI", sans-serif;
+      color: #000000;
+      background: #ffffff;
+      font-size: 8.5pt;
+      line-height: 1.35;
+    }
+
+    .page {
+      page-break-after: always;
+      height: 272mm;
+      max-height: 272mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Page de couverture */
+    .cover-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      padding: 40mm 10mm 15mm 10mm;
+    }
+
+    .cover-brand-title {
+      font-size: 32pt;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin: 0;
+      color: #000000;
+    }
+
+    .cover-brand-sub {
+      font-size: 13pt;
+      font-weight: 600;
+      letter-spacing: 4px;
+      margin-top: 4px;
+      color: #000000;
+    }
+
+    .cover-center {
+      margin-top: 50mm;
+    }
+
+    .cover-main-title {
+      font-size: 30pt;
+      font-weight: 800;
+      margin: 0;
+      color: #000000;
+    }
+
+    .cover-main-sub {
+      font-size: 13pt;
+      font-weight: 400;
+      margin-top: 8px;
+      text-decoration: underline;
+      color: #000000;
+    }
+
+    .cover-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      text-align: left;
+      border-top: 1px solid #000;
+      padding-top: 12px;
+    }
+
+    .cover-badge-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cover-icon {
+      width: 32px;
+      height: 32px;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16pt;
+      font-weight: bold;
+    }
+
+    .cover-notice {
+      font-size: 8pt;
+      font-weight: 500;
+      max-width: 280px;
+      line-height: 1.25;
+    }
+
+    .cover-ref-code {
+      font-size: 12pt;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .cover-footer-text {
+      text-align: center;
+      font-size: 7.5pt;
+      color: #444;
+      margin-top: 10px;
+    }
+
+    /* En-tête des pages standard */
+    .page-header {
+      margin-bottom: 6px;
+    }
+
+    .page-title {
+      font-size: 20pt;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      margin: 0;
+      line-height: 1.1;
+      color: #000000;
+    }
+
+    .page-subtitle {
+      font-size: 8.5pt;
+      font-weight: 500;
+      color: #222222;
+      margin-top: 2px;
+    }
+
+    /* Grille de 4 cartes supérieures */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1.5px solid #000000;
+      margin-bottom: 8px;
+      background: #ffffff;
+    }
+
+    .card-col {
+      padding: 6px 8px;
+      border-right: 1.5px solid #000000;
+    }
+
+    .card-col:last-child {
+      border-right: none;
+    }
+
+    .card-num-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .num-circle {
+      width: 15px;
+      height: 15px;
+      background: #000000;
+      color: #ffffff;
+      border-radius: 50%;
+      font-size: 7.5pt;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 8pt;
+      font-weight: 800;
+      color: #000000;
+      line-height: 1.15;
+    }
+
+    .card-desc {
+      font-size: 7pt;
+      color: #444444;
+      line-height: 1.15;
+      padding-left: 21px;
+    }
+
+    /* Liste des 4 points détaillés */
+    .points-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-bottom: 8px;
+    }
+
+    .point-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 8pt;
+      line-height: 1.3;
+    }
+
+    .point-num {
+      width: 13px;
+      height: 13px;
+      background: #000000;
+      color: #ffffff;
+      border-radius: 50%;
+      font-size: 6.8pt;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .point-text {
+      flex: 1;
+    }
+
+    .point-text strong {
+      font-weight: 700;
+    }
+
+    /* Boîte de règles et contraintes */
+    .rules-box {
+      border: 1.5px solid #000000;
+      padding: 6px 10px;
+      margin-bottom: 8px;
+      background: #ffffff;
+    }
+
+    .rules-title {
+      font-size: 8.5pt;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      color: #000000;
+    }
+
+    .rules-content {
+      font-size: 7.8pt;
+      line-height: 1.35;
+      color: #111111;
+    }
+
+    .rules-content p {
+      margin: 0 0 3px 0;
+    }
+
+    .rules-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Boîte de code source réel */
+    .code-box {
+      border: 1.5px solid #000000;
+      margin-bottom: 6px;
+      background: #ffffff;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-height: 105mm;
+    }
+
+    .code-header {
+      background: #f1f1f1;
+      border-bottom: 1px solid #000000;
+      padding: 3px 8px;
+      display: flex;
+      justify-content: space-between;
+      font-family: monospace;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #000000;
+    }
+
+    .code-content {
+      margin: 0;
+      padding: 5px 8px;
+      font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+      font-size: 6.8pt;
+      line-height: 1.32;
+      white-space: pre;
+      overflow: hidden;
+      color: #000000;
+      background: #ffffff;
+      flex: 1;
+    }
+
+    /* Pied de page standard */
+    .page-footer {
+      text-align: center;
+      padding-top: 4px;
+    }
+
+    .page-num {
+      font-size: 9pt;
+      font-weight: 700;
+      color: #000000;
+    }
+
+    /* Spécificités des tableaux d'index */
+    .index-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1.5px solid #000000;
+      font-size: 7.2pt;
+      margin-top: 4px;
+    }
+
+    .index-table th {
+      border-bottom: 1.5px solid #000000;
+      padding: 4px 6px;
+      text-align: left;
+      font-weight: 800;
+      background: #f4f4f4;
+    }
+
+    .index-table td {
+      border-bottom: 1px solid #e0e0e0;
+      padding: 2.8px 6px;
+    }
+
+    .index-table tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== PAGE 1 : COUVERTURE ==================== -->
+  <div class="page">
+    <div class="cover-container">
+      <div>
+        <div class="cover-brand-title">EVOLVE</div>
+        <div class="cover-brand-sub">ACADEMY</div>
+      </div>
+
+      <div class="cover-center">
+        <div class="cover-main-title">Guide technique</div>
+        <div class="cover-main-sub">Architecture applicative et gestion Evolve Staff</div>
+      </div>
+
+      <div>
+        <div class="cover-bottom">
+          <div class="cover-badge-box">
+            <div class="cover-icon">⚏</div>
+            <div class="cover-notice">
+              Lisez ce guide avant de modifier le code ou de soumettre une Pull Request.
+            </div>
+          </div>
+          <div class="cover-ref-code">EV-2026-STAFF</div>
+        </div>
+        <div class="cover-footer-text">
+          Groupe REV · Division Éducation et Technologie · Octobre 2026 · Version 1.0.0
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2 : AVANT DE COMMENCER ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">AVANT DE COMMENCER</div>
+      <div class="page-subtitle">Section 0 sur 16 : cadrage et principes directeurs</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Staff CMS Flutter</span></div>
+        <div class="card-desc">Dart 3.9 / Flutter 3.35<br>(Web & Windows)</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Supabase Partagé</span></div>
+        <div class="card-desc">Auth, Postgres, RLS<br>et Storage unifiés</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Rôles Staff</span></div>
+        <div class="card-desc">teacher et admin<br>(étudiants rejetés)</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Edge Functions</span></div>
+        <div class="card-desc">Deno / TypeScript<br>pour actions privilégiées</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Dashboard Staff (Flutter) :</strong> Application multiplateforme (SPA Web Vercel et binaire Windows) pilotant cours, devoirs et finances.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Base de données partagée :</strong> Supabase PostgreSQL partagé en direct avec le portail étudiant Next.js (<code>evolve-web</code>).</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Ségrégation stricte des rôles :</strong> Seuls les profils avec le rôle <code>teacher</code> ou <code>admin</code> sont autorisés à franchir l'écran de login.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Zéro clé secrète dans Flutter :</strong> Jamais de clé <code>service_role</code> dans le code Flutter ; les actions globales passent par Edge Functions.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">À SAVOIR ABSOLUMENT</div>
+      <div class="rules-content">
+        <p>Le schéma SQL et les migrations sont centralisés : tout ajout de colonne ou trigger doit être versionné sous <code>supabase/migrations/</code>.</p>
+        <p>Les secrets API et tokens de service ne figurent JAMAIS côté client : seule la clé anonyme publique est déclarée dans <code>lib/main.dart</code>.</p>
+        <p>Toute modification d'écran ou de service doit passer la suite d'assurance qualité locale via <code>scripts/check.sh</code>.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">README.md</span>
+        <span class="code-lines">Lignes 28-43</span>
+      </div>
+      <pre class="code-content"><code>28: L’application est préconfigurée pour le projet Supabase partagé avec Evolve
+29: School. Si vous utilisez un autre environnement, adaptez la configuration
+30: publique Supabase dans `lib/main.dart`. **N’ajoutez jamais de clé `service_role`
+31: ou de secret Chargily à l’application Flutter.**
+32: 
+33: ## Se connecter
+34: 
+35: 1. Connectez-vous avec l’adresse e-mail et le mot de passe du compte.
+36: 2. Le compte doit exister dans Supabase Auth et son profil doit avoir le rôle
+37:    `teacher` ou `admin`.
+38: 3. Si l’accès est refusé, demandez à un administrateur de vérifier le rôle dans
+39:    le profil du compte.
+40: 
+41: Les champs de connexion acceptent la touche Entrée, vérifient le format de
+42: l’adresse e-mail et permettent d’afficher temporairement le mot de passe.</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">2</span></div>
+  </div>
+
+  <!-- ==================== PAGE 3 : SOMMAIRE ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">SOMMAIRE</div>
+      <div class="page-subtitle">Table des matières générale du référentiel Staff</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Partie I : Config</span></div>
+        <div class="card-desc">Architecture, runtime<br>et modularité (p. 4-6)</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Partie II : Métier</span></div>
+        <div class="card-desc">Auth, cours, leçons<br>et devoirs (p. 7-13)</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Partie III : Admin</span></div>
+        <div class="card-desc">Temps réel, users,<br>finances DZD (p. 14-17)</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Partie IV : Ops</span></div>
+        <div class="card-desc">RLS, tests, build<br>et index (p. 18-25)</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Partie I : Architecture & Fondations (p. 4 à 6) :</strong> Flux de données, analyse de pubspec.yaml, découpage lib/ en screens et services.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Partie II : Modules Pédagogiques (p. 7 à 13) :</strong> Login RBAC, dashboard adaptatif, cours, leçons, formations, devoirs et progression.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Partie III : Administration & Trésorerie (p. 14 à 17) :</strong> Messagerie Realtime, gestion des rôles, grand livre DZD et export CSV.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Partie IV : Sécurité, Déploiement & Index (p. 18 à 25) :</strong> Edge Functions, triggers RLS, scripts CI, build Vercel et index de code.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">ORGANISATION DE LA LECTURE</div>
+      <div class="rules-content">
+        <p><strong>Une page = un sujet :</strong> Chaque fiche synthétise structure, responsabilités et extrait de code réel numéroté.</p>
+        <p>Les fonctionnalités réservées aux administrateurs (modération, grand livre financier, gestion RBAC) sont clairement balisées.</p>
+        <p>L'annexe finale référence exhaustivement l'intégralité des fichiers de l'application Flutter et de son backend Supabase.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">FILE_CONTENT_REPORT.txt</span>
+        <span class="code-lines">Lignes 12-32</span>
+      </div>
+      <pre class="code-content"><code>12: FLUTTER APPLICATION AND SCREENS
+13: lib/main.dart — Initializes Flutter and Supabase and starts the Evolve Staff app at login.
+14: lib/screens/assignments_screen.dart — Lists/filters course assignments, creates assignments, and supports submission review and grading.
+15: lib/screens/course_details_screen.dart — Shows course details and lessons, with links to editing, lesson management, and course files.
+16: lib/screens/course_files_screen.dart — Lists course file records and uploads files to Supabase Storage with saved metadata.
+17: lib/screens/courses_screen.dart — Lists, searches, and filters courses; includes course editing and administrator moderation actions.
+18: lib/screens/create_course_screen.dart — Course creation form for description, pricing, category, and publication fields.
+19: lib/screens/dashboard_screen.dart — Role-aware staff navigation/dashboard with statistics, activity, shortcuts, and sign-out.
+20: lib/screens/edit_course_screen.dart — Edits course details, pricing, and publication fields and saves to Supabase.
+21: lib/screens/formations_screen.dart — Lists formations/series, creates them, and shows associated courses.
+22: lib/screens/lesson_details_screen.dart — Displays lesson title, order, description, and edit navigation.
+23: lib/screens/lessons_screen.dart — Lists lessons with course context and provides course/search filters and lesson creation.
+24: lib/screens/login_screen.dart — Validates credentials, signs in with Supabase Auth, checks staff role, and routes authorized users.
+25: lib/screens/messages_screen.dart — Displays student conversations with search/unread filters and refresh on real-time message events.
+26: lib/screens/revenue_screen.dart — Displays recorded revenue, refunds, expenses, enrollment counts, and course totals.</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">3</span></div>
+  </div>
+
+  <!-- ==================== PAGE 4 : ARCHITECTURE GLOBALE ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">ARCHITECTURE GLOBALE</div>
+      <div class="page-subtitle">Section 1 sur 16 : flux de données et responsabilités</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Client Flutter</span></div>
+        <div class="card-desc">Material 3 / State<br>StatefulWidgets</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Services & DTOs</span></div>
+        <div class="card-desc">Couche d'abstraction<br>et validation stricte</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Postgres + RLS</span></div>
+        <div class="card-desc">Sécurité en base<br>filtrée par JWT</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Edge Functions</span></div>
+        <div class="card-desc">Microservices Deno<br>à privilèges élevés</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Interface Client (lib/screens) :</strong> Composants réactifs Flutter Material 3 gérant formulaires, listes et états de chargement.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Couche Services (lib/services) :</strong> Isole les appels Supabase, transforme les réponses JSON et lève des exceptions typées.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>PostgreSQL & Row-Level Security :</strong> Toutes les requêtes directes sont soumises aux politiques RLS selon le rôle utilisateur.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Edge Functions Supabase :</strong> Exécutent les opérations d'agrégation d'analytics et les modifications sécurisées de profils.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">PRINCIPES ARCHITECTURAUX</div>
+      <div class="rules-content">
+        <p>Séparation stricte UI / Données : un écran n'exécute jamais de requêtes complexes directement s'il existe un service dédié.</p>
+        <p>Chaque modèle de données valide ses champs à l'instanciation (interdiction des montants négatifs ou identifiants nuls).</p>
+        <p>L'application s'adapte dynamiquement selon le rôle transmis au login (<code>teacher</code> ou <code>admin</code>).</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/main.dart</span>
+        <span class="code-lines">Lignes 1-32</span>
+      </div>
+      <pre class="code-content"><code>1: import 'package:flutter/material.dart';
+2: import 'package:supabase_flutter/supabase_flutter.dart';
+3: import 'package:evolve_staff/screens/login_screen.dart';
+4: 
+5: Future<void> main() async {
+6:   WidgetsFlutterBinding.ensureInitialized();
+7: 
+8:   const supabaseUrl = String.fromEnvironment(
+9:     'SUPABASE_URL', defaultValue: 'https://ficrjocgrcghxrdpwbbw.supabase.co',
+10:   );
+11:   const supabaseAnonKey = String.fromEnvironment(
+12:     'SUPABASE_PUBLISHABLE_KEY', defaultValue: 'sb_publishable_4iPyk0EvUvT2OfKrDbhQxA_bvOhv2P2',
+13:   );
+14:   await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
+12: 
+13:   runApp(const EvolveStaffApp());
+14: }
+15: 
+16: class EvolveStaffApp extends StatelessWidget {
+17:   const EvolveStaffApp({super.key});
+18: 
+19:   @override
+20:   Widget build(BuildContext context) {
+21:     return MaterialApp(
+22:       debugShowCheckedModeBanner: false,
+23:       title: 'Evolve Staff',
+24:       theme: ThemeData(
+25:         fontFamily: 'Inter',
+26:         useMaterial3: true,
+27:         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF84CC16)),
+28:       ),
+29:       home: const LoginScreen(),
+30:     );
+31:   }
+32: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">4</span></div>
+  </div>
+
+  <!-- ==================== PAGE 5 : DÉPENDANCES ET RUNTIME ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">DÉPENDANCES ET RUNTIME</div>
+      <div class="page-subtitle">Section 2 sur 16 : analyse de pubspec.yaml et SDK</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">SDK Dart / Flutter</span></div>
+        <div class="card-desc">Dart ^3.9.2<br>Flutter 3.35.x</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">supabase_flutter</span></div>
+        <div class="card-desc">^2.17.2 : Auth, DB,<br>Storage et Realtime</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">file_picker</span></div>
+        <div class="card-desc">^11.0.3 : Sélection de<br>fichiers multiplateforme</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">package web</span></div>
+        <div class="card-desc">^1.1.1 : W3C JS Interop<br>moderne pour Flutter Web</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Environnement Dart 3.9 :</strong> Typage strict, sound null-safety intégrale et compilation AOT / WASM optimisée.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>supabase_flutter (^2.17.2) :</strong> Pilote la session JWT, la persistance locale chiffrée et les flux d'écoute WebSocket.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>file_picker (^11.0.3) :</strong> Abstraction d'accès aux fichiers locaux pour l'upload de ressources PDF, ZIP et vidéos.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>web (^1.1.1) :</strong> Remplace l'ancien <code>dart:html</code> déprécié par le nouveau standard Dart JS Interop pour le Web.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">BONNES PRATIQUES ET VERROUILLAGE</div>
+      <div class="rules-content">
+        <p>Le fichier <code>pubspec.lock</code> est strictement versionné dans Git pour garantir la reproductibilité des builds en CI/CD.</p>
+        <p>L'installation des paquets en intégration continue utilise obligatoirement le flag <code>--enforce-lockfile</code>.</p>
+        <p>Les dépendances Dart HTML sont isolées par compilation conditionnelle pour éviter de briser la compilation Windows native.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">pubspec.yaml</span>
+        <span class="code-lines">Lignes 21-51</span>
+      </div>
+      <pre class="code-content"><code>21: environment:
+22:   sdk: ^3.9.2
+23: 
+24: dependencies:
+25:   flutter:
+26:     sdk: flutter
+27: 
+28:   # Icônes vectorielles standard
+29:   cupertino_icons: ^1.0.8
+30: 
+31:   # Client officiel Supabase (Auth, PostgREST, Storage, Realtime)
+32:   supabase_flutter: ^2.17.2
+33: 
+34:   # Sélecteur de fichiers de cours et devoirs
+35:   file_picker: ^11.0.3
+36: 
+37:   # Standard moderne W3C Web Interop pour téléchargements CSV
+38:   web: ^1.1.1
+39: 
+40: dev_dependencies:
+41:   flutter_test:
+42:     sdk: flutter
+43: 
+44:   # Règles de qualité de code officielles Flutter
+45:   flutter_lints: ^5.0.0
+46: 
+47: flutter:
+48:   uses-material-design: true</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">5</span></div>
+  </div>
+
+  <!-- ==================== PAGE 6 : ORGANISATION MODULAIRE ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">ORGANISATION MODULAIRE</div>
+      <div class="page-subtitle">Section 3 sur 16 : cartographie lib/, screens et services</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">lib/screens/</span></div>
+        <div class="card-desc">16 écrans d'interface<br>et navigation réactive</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">lib/services/</span></div>
+        <div class="card-desc">16 services de données<br>et DTOs typés</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">test/</span></div>
+        <div class="card-desc">Tests unitaires et de<br>widgets automatisés</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">scripts/ & CI</span></div>
+        <div class="card-desc">check.sh et build.sh<br>pour validation continue</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Écrans UI (lib/screens) :</strong> Composent les vues du menu latéral, les formulaires d'édition et les tables de bord.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Services Métier (lib/services) :</strong> Gèrent la sérialisation, les formats monétaires DZD et les appels RPC / Edge Functions.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Suite de Tests (test) :</strong> Valide le parsing des modèles, la robustesse aux données manquantes et les formulaires.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Automatisation (scripts) :</strong> Exécute l'analyse statique Dart, le formatage obligatoire et le build Vercel.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">SÉGRÉGATION DES COUCHES</div>
+      <div class="rules-content">
+        <p>Un écran UI ne doit jamais manipuler directement des requêtes SQL brutes si une entité métier existe.</p>
+        <p>Les fichiers de services doivent être indépendants du contexte d'affichage (pas de BuildContext dans les parsers).</p>
+        <p>Les téléchargements de fichiers sont encapsulés sous <code>financial_report_download.dart</code> via imports conditionnels.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/services/admin_dashboard_service.dart</span>
+        <span class="code-lines">Lignes 3-35</span>
+      </div>
+      <pre class="code-content"><code>3: class AdminDashboardOverview {
+4:   final int totalUsers;
+5:   final int newUsersLastSevenDays;
+6:   final int students;
+7:   final int teachers;
+8:   final int administrators;
+9:   final int courses;
+10:   final int publishedCourses;
+11:   final int draftCourses;
+12:   final int lessons;
+13:   final int formations;
+14:   final int pendingPayments;
+15:   final int paidEnrollments;
+16:   final List<Map<String, dynamic>> recentUsers;
+17:   final List<Map<String, dynamic>> recentCourses;
+18: 
+19:   const AdminDashboardOverview({
+20:     required this.totalUsers,
+21:     required this.newUsersLastSevenDays,
+22:     required this.students,
+23:     required this.teachers,
+24:     required this.administrators,
+25:     required this.courses,
+26:     required this.publishedCourses,
+27:     required this.draftCourses,
+28:     required this.lessons,
+29:     required this.formations,
+30:     required this.pendingPayments,
+31:     required this.paidEnrollments,
+32:     required this.recentUsers,
+33:     required this.recentCourses,
+34:   });</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">6</span></div>
+  </div>
+
+  <!-- ==================== PAGE 7 : AUTHENTIFICATION ET RBAC ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">AUTHENTIFICATION ET ACCÈS</div>
+      <div class="page-subtitle">Section 4 sur 16 : Supabase Auth et contrôle RBAC</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Saisie Compte</span></div>
+        <div class="card-desc">Email, mot de passe,<br>validation regex</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Vérification Auth</span></div>
+        <div class="card-desc">signInWithPassword()<br>génère le jeton JWT</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Lecture du Rôle</span></div>
+        <div class="card-desc">Lecture du profil en<br>table public.profiles</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Filtrage Staff</span></div>
+        <div class="card-desc">teacher ou admin : OK<br>student : signOut()</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Validation du formulaire :</strong> Vérifie le format de l'e-mail, masque/démasque le mot de passe et soumet via Entrée.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Session Supabase :</strong> Récupère le jeton JWT d'authentification utilisateur persistant.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Extraction du profil :</strong> Interroge <code>public.profiles</code> avec l'UUID utilisateur pour obtenir le rôle et le nom.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Répudiation des étudiants :</strong> Si le rôle n'est ni <code>teacher</code> ni <code>admin</code>, la session est immédiatement révoquée.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">RÈGLE CRITIQUE D'ACCÈS AU STAFF</div>
+      <div class="rules-content">
+        <p>L'accès à l'application est strictement interdit aux apprenants (rôle <code>student</code>).</p>
+        <p>En cas de tentative de connexion d'un étudiant, l'application appelle <code>supabase.auth.signOut()</code> et affiche un message explicite.</p>
+        <p>Le rôle et le nom validés sont transmis au <code>DashboardScreen</code> pour adapter l'interface.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/screens/login_screen.dart</span>
+        <span class="code-lines">Lignes 30-61</span>
+      </div>
+      <pre class="code-content"><code>30: final supabase = Supabase.instance.client;
+31: 
+32: final response = await supabase.auth.signInWithPassword(
+33:   email: emailController.text.trim(),
+34:   password: passwordController.text,
+35: );
+36: 
+37: if (response.user == null) {
+38:   throw Exception('Login failed.');
+39: }
+40: 
+41: final profile = await supabase
+42:     .from('profiles')
+43:     .select('role, full_name')
+44:     .eq('id', response.user!.id)
+45:     .single();
+46: 
+47: final role = profile['role'];
+48: 
+49: if (role != 'teacher' && role != 'admin') {
+50:   await supabase.auth.signOut();
+51:   throw Exception('You are not authorized to access Evolve Staff.');
+52: }
+53: 
+54: if (!mounted) return;
+55: 
+56: Navigator.pushReplacement(
+57:   context,
+58:   MaterialPageRoute(
+59:     builder: (_) =>
+60:         DashboardScreen(role: role, fullName: profile['full_name'] ?? ''),
+61:   ),
+62: );</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">7</span></div>
+  </div>
+
+  <!-- ==================== PAGE 8 : TABLEAU DE BORD PRINCIPAL ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">TABLEAU DE BORD PRINCIPAL</div>
+      <div class="page-subtitle">Section 5 sur 16 : hub adaptatif formateur vs administrateur</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Indicateurs Clés</span></div>
+        <div class="card-desc">Cours, étudiants,<br>formations, leçons</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Aperçu Admin</span></div>
+        <div class="card-desc">Nouveaux comptes, brouillons,<br>paiements en attente</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Menu Latéral</span></div>
+        <div class="card-desc">Navigation vers les<br>10 espaces métier</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Flux Récent</span></div>
+        <div class="card-desc">Derniers cours créés<br>et activités staff</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Compteurs pédagogiques :</strong> Affiche en temps réel le total des cours, étudiants inscrits, parcours et leçons.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Blocs réservés aux administrateurs :</strong> Suivi des comptes des 7 derniers jours, paiements et cours à modérer.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Menu contextuel :</strong> Les sections <em>Users & Roles</em> et <em>Revenue</em> sont masquées aux formateurs simples.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Actualisation transparente :</strong> Bouton de rafraîchissement manuel rechargeant données Supabase et Edge Functions.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">ADAPTABILITÉ ET EXPÉRIENCE UTILISATEUR</div>
+      <div class="rules-content">
+        <p>Les cartes de métriques sont des raccourcis cliquables ouvrant directement les écrans de gestion associés.</p>
+        <p>La carte <em>Courses needing review</em> filtre immédiatement le catalogue sur les cours en statut brouillon.</p>
+        <p>En cas d'échec réseau, l'interface affiche un état d'erreur explicite sans planter l'application.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/screens/dashboard_screen.dart</span>
+        <span class="code-lines">Lignes 51-78</span>
+      </div>
+      <pre class="code-content"><code>51: Future<void> _loadDashboardData() async {
+52:   setState(() { loading = true; errorMessage = null; });
+53:   try {
+54:     final overview = widget.role == 'admin'
+55:         ? await AdminDashboardOverview.fetch()
+56:         : null;
+57:     final stats = overview == null
+58:         ? await AnalyticsService.fetchStats(widget.role)
+59:         : {
+60:             'courses': overview.courses,
+61:             'students': overview.students,
+62:             'formations': overview.formations,
+63:             'lessons': overview.lessons,
+64:           };
+65:     List<Map<String, dynamic>> recents = [];
+66:     if (overview != null) {
+67:       recents = overview.recentCourses;
+68:     } else {
+69:       final res = await supabase
+70:           .from('courses')
+71:           .select('id, title, domain, created_at')
+72:           .order('created_at', ascending: false)
+73:           .limit(5);
+74:       recents = List<Map<String, dynamic>>.from(res);
+75:     }
+76:     if (!mounted) return;
+77:     setState(() { courses = stats['courses'] ?? 0; recentActivities = recents; loading = false; });</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">8</span></div>
+  </div>
+
+  <!-- ==================== PAGE 9 : GESTION DES COURS ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">GESTION ET MODÉRATION COURS</div>
+      <div class="page-subtitle">Section 6 sur 16 : cycle de vie brouillon, révision et publication</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Création de Cours</span></div>
+        <div class="card-desc">Titre, description,<br>domaine et prix DZD</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Statut Brouillon</span></div>
+        <div class="card-desc">published = false<br>invisible aux élèves</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Modération Admin</span></div>
+        <div class="card-desc">Revue pédagogique et<br>approbation admin</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Mise en Ligne</span></div>
+        <div class="card-desc">published = true<br>visible sur le site</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Création de cours :</strong> Le formateur définit les métadonnées, assigne une miniature et fixe le prix catalogue en DZD.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Protection par défaut :</strong> Tout nouveau cours démarre en brouillon (<code>published: false</code>) et reste masqué aux étudiants.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Contrôle de publication :</strong> Seul un administrateur peut basculer un cours vers le statut publié via la modération.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Recherche et filtres :</strong> Filtrage multicritères par domaine, statut (tous / brouillons / publiés) et saisie textuelle.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">POLITIQUE DE MODÉRATION</div>
+      <div class="rules-content">
+        <p>Un formateur ne peut pas auto-publier son cours : verrouillé par l'UI ET par le trigger SQL <code>guard_course_publication</code> (erreur 42501).</p>
+        <p>La dépublication d'un cours existant nécessite une confirmation explicite pour éviter d'interrompre les étudiants inscrits.</p>
+        <p>Les opérations de modération administrative transitent par <code>AdminCourseModerationService</code>.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/screens/courses_screen.dart</span>
+        <span class="code-lines">Lignes 40-72</span>
+      </div>
+      <pre class="code-content"><code>40: Future<void> loadCourses() async {
+41:   try {
+42:     final user = supabase.auth.currentUser;
+43:     if (user == null) throw Exception('User is not logged in.');
+44: 
+45:     final profile = await supabase
+46:         .from('profiles')
+47:         .select('role')
+48:         .eq('id', user.id)
+49:         .single();
+50:     isAdmin = profile['role'] == 'admin';
+51: 
+52:     List<Map<String, dynamic>> res = [];
+53:     if (isAdmin) {
+54:       res = await AdminCoursesService.fetchCourses();
+55:     } else {
+56:       final data = await supabase
+57:           .from('courses')
+58:           .select('*, lessons(count)')
+59:           .eq('teacher_id', user.id)
+60:           .order('created_at', ascending: false);
+61:       res = List<Map<String, dynamic>>.from(data);
+62:     }
+63:     if (!mounted) return;
+64:     setState(() { allCourses = res; loading = false; });
+65:     filterCourses();
+66:   } catch (e) {
+67:     setState(() { error = e.toString(); loading = false; });
+68:   }
+69: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">9</span></div>
+  </div>
+
+  <!-- ==================== PAGE 10 : LEÇONS ET RESSOURCES ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">LEÇONS ET RESSOURCES DE COURS</div>
+      <div class="page-subtitle">Section 7 sur 16 : structuration des chapitres et upload Storage</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Ordre et Titre</span></div>
+        <div class="card-desc">order_index strict pour<br>le parcours séquentiel</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Contenu Vidéo</span></div>
+        <div class="card-desc">video_url et durée<br>estimée en minutes</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Pièces Jointes</span></div>
+        <div class="card-desc">Upload Supabase Storage<br>(PDF, code, archives)</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Métadonnées</span></div>
+        <div class="card-desc">Table course_files pour<br>traçabilité des fichiers</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Organisation séquentielle :</strong> Chaque leçon possède un <code>order_index</code> déterminant la progression sur le portail étudiant.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Ressources vidéo :</strong> Lien d'intégration vidéo (YouTube ou hébergement dédié) associé à une durée calibrée.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Stockage de documents :</strong> <code>course_files_screen.dart</code> utilise <code>file_picker</code> pour téléverser vers le bucket Storage.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Référencement en base :</strong> Chaque fichier uploadé génère une ligne dans <code>course_files</code> liant URL, nom et taille.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">INTÉGRITÉ DU CONTENU PÉDAGOGIQUE</div>
+      <div class="rules-content">
+        <p>L'accès aux leçons protégées sur le site web nécessite une inscription payée (<code>payment_status = 'paid'</code>).</p>
+        <p>La suppression d'une leçon cascade les enregistrements de progression (<code>lesson_progress</code>) associés.</p>
+        <p>Les fichiers de cours sont servis via des URLs publiques ou signées selon la visibilité du bucket.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/screens/course_files_screen.dart</span>
+        <span class="code-lines">Lignes 35-65</span>
+      </div>
+      <pre class="code-content"><code>35: Future<void> _uploadFile() async {
+36:   final result = await FilePicker.platform.pickFiles(withData: true);
+37:   if (result == null || result.files.isEmpty) return;
+38: 
+39:   final file = result.files.first;
+40:   if (file.bytes == null) return;
+41: 
+42:   setState(() => _uploading = true);
+43:   try {
+44:     final path = '${widget.courseId}/${DateTime.now().millisecondsSinceEpoch}_${file.name}';
+45:     await supabase.storage.from('course_materials').uploadBinary(path, file.bytes!);
+46:     final fileUrl = supabase.storage.from('course_materials').getPublicUrl(path);
+47: 
+48:     await supabase.from('course_files').insert({
+49:       'course_id': widget.courseId,
+50:       'name': file.name,
+51:       'file_url': fileUrl,
+52:       'size_bytes': file.size,
+53:       'uploaded_by': supabase.auth.currentUser!.id,
+54:     });
+55: 
+56:     if (!mounted) return;
+57:     _loadFiles();
+58:   } catch (e) {
+59:     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+60:   } finally {
+61:     if (mounted) setState(() => _uploading = false);
+62:   }
+63: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">10</span></div>
+  </div>
+
+  <!-- ==================== PAGE 11 : FORMATIONS ET WORKSHOPS ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">FORMATIONS ET ATELIERS</div>
+      <div class="page-subtitle">Section 8 sur 16 : séries de cours et masterclasses pratiques</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Parcours Séries</span></div>
+        <div class="card-desc">course_series : regroupe<br>plusieurs cours liés</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Ordonnancement</span></div>
+        <div class="card-desc">Progression séquentielle<br>obligatoire de la série</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Ateliers Pratiques</span></div>
+        <div class="card-desc">Sessions immersives,<br>replay et projets</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Certifications</span></div>
+        <div class="card-desc">Diplôme délivré dès<br>complétion intégrale</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Entité Formations (course_series) :</strong> Regroupe plusieurs cours dans un cursus thématique cohérent.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Verrouillage séquentiel :</strong> Un étudiant ne peut aborder le cours N+1 d'une série sans avoir validé à 100 % le cours N.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Workshops / Ateliers :</strong> Modules intensifs gérés via <code>workshops_screen.dart</code> avec suivi de projet mentoré.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Émission des attestations :</strong> La complétion globale d'une formation déclenche la génération d'un certificat officiel.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">RÈGLES D'ORGANISATION DES FORMATIONS</div>
+      <div class="rules-content">
+        <p>Les associations cours-série sont sécurisées en base par les politiques RLS de <code>course_series_rls.sql</code>.</p>
+        <p>Un cours peut être proposé individuellement ou au sein d'un parcours de formation complet.</p>
+        <p>Le statut d'inscription aux ateliers est tracé distinctement dans <code>workshop_enrollments</code>.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/services/formation_service.dart</span>
+        <span class="code-lines">Lignes 1-32</span>
+      </div>
+      <pre class="code-content"><code>1: import 'package:supabase_flutter/supabase_flutter.dart';
+2: 
+3: class Formation {
+4:   final String id;
+5:   final String title;
+6:   final String? description;
+7:   final String? domain;
+8:   final List<String> courseIds;
+9: 
+10:   Formation({
+11:     required this.id,
+12:     required this.title,
+13:     this.description,
+14:     this.domain,
+15:     this.courseIds = const [],
+16:   });
+17: 
+18:   factory Formation.fromMap(Map<String, dynamic> map) {
+19:     return Formation(
+20:       id: map['id'],
+21:       title: map['title'] ?? '',
+22:       description: map['description'],
+23:       domain: map['domain'],
+24:       courseIds: (map['courses'] as List<dynamic>?)
+25:           ?.map((c) => c['id'].toString())
+26:           .toList() ?? [],
+27:     );
+28:   }
+29: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">11</span></div>
+  </div>
+
+  <!-- ==================== PAGE 12 : DEVOIRS ET NOTATION ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">DEVOIRS ET NOTATION</div>
+      <div class="page-subtitle">Section 9 sur 16 : création, soumission et correction formative</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Création Devoir</span></div>
+        <div class="card-desc">Titre, consignes et<br>date limite d'échéance</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Dépôts Étudiants</span></div>
+        <div class="card-desc">assignment_submissions :<br>liens et fichiers rendus</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Évaluation Staff</span></div>
+        <div class="card-desc">Attribution d'une note<br>et commentaire feedback</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Statut de Revue</span></div>
+        <div class="card-desc">pending -> reviewed<br>visible par l'étudiant</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Configuration des assignations :</strong> Le formateur crée les devoirs rattachés à un cours précis.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Réception des travaux :</strong> Vue centralisée de tous les devoirs soumis par les apprenants dans <code>assignments_screen.dart</code>.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Grille d'évaluation :</strong> Le formateur saisit la note chiffrée et un feedback qualitatif constructif.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Notification de l'élève :</strong> Le statut de la soumission bascule à <code>reviewed</code> et apparaît sur l'espace élève.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">PRINCIPES D'ÉVALUATION</div>
+      <div class="rules-content">
+        <p>Un formateur ne peut corriger que les devoirs associés aux cours dont il est l'instructeur référent.</p>
+        <p>Les administrateurs ont une visibilité complète sur la file des devoirs en attente de correction.</p>
+        <p>Le service <code>AssignmentService</code> fournit un mode témoin de repli en cas d'indisponibilité temporaire de la base.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/services/assignment_service.dart</span>
+        <span class="code-lines">Lignes 25-50</span>
+      </div>
+      <pre class="code-content"><code>25: class AssignmentSubmission {
+26:   final String id;
+27:   final String assignmentId;
+28:   final String studentId;
+29:   final String? studentName;
+30:   final String contentUrl;
+31:   final String status; // 'pending' | 'reviewed'
+32:   final double? grade;
+33:   final String? feedback;
+34:   final DateTime submittedAt;
+35: 
+36:   AssignmentSubmission({
+37:     required this.id,
+38:     required this.assignmentId,
+39:     required this.studentId,
+40:     this.studentName,
+41:     required this.contentUrl,
+42:     required this.status,
+43:     this.grade,
+44:     this.feedback,
+45:     required this.submittedAt,
+46:   });
+47: 
+48:   static Future<void> gradeSubmission(String id, double grade, String feedback) async {
+49:     await Supabase.instance.client.from('assignment_submissions').update({
+50:       'grade': grade, 'feedback': feedback, 'status': 'reviewed',
+51:     }).eq('id', id);
+52:   }
+53: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">12</span></div>
+  </div>
+
+  <!-- ==================== PAGE 13 : PROGRESSION DES ÉTUDIANTS ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">PROGRESSION DES ÉTUDIANTS</div>
+      <div class="page-subtitle">Section 10 sur 16 : complétion temps réel et attestation</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Table de Suivi</span></div>
+        <div class="card-desc">lesson_progress : trace<br>chaque leçon validée</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Taux de Réussite</span></div>
+        <div class="card-desc">Calcul du % de complétion<br>par cours et par élève</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Filtres et Recherche</span></div>
+        <div class="card-desc">Par cours, nom d'élève<br>ou état d'avancement</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Délivrance Diplôme</span></div>
+        <div class="card-desc">Validation 100 % requise<br>pour le certificat</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Granularité par leçon :</strong> La table <code>lesson_progress</code> enregistre la dernière position et le statut <code>completed</code>.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Agrégation d'avancement :</strong> <code>StudentProgressService</code> compare les leçons achevées au volume total du cours.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Vue pédagogique Staff :</strong> Permet d'identifier les élèves en difficulté ou bloqués sur un chapitre spécifique.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Critère d'attestation :</strong> Le certificat de formation n'est accessible que lorsque 100 % des leçons obligatoires sont cochées.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">MOTEUR D'AVANCEMENT PÉDAGOGIQUE</div>
+      <div class="rules-content">
+        <p>Les cours sans leçons publiées retournent un taux de 0 % pour éviter toute division par zéro.</p>
+        <p>Les données de progression sont en lecture seule pour les formateurs et mises à jour par l'activité de l'étudiant.</p>
+        <p>La recherche par nom d'étudiant supporte la pagination et les caractères spéciaux.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/services/student_progress_service.dart</span>
+        <span class="code-lines">Lignes 20-45</span>
+      </div>
+      <pre class="code-content"><code>20: class StudentProgressSummary {
+21:   final String studentId;
+22:   final String studentName;
+23:   final String courseId;
+24:   final String courseTitle;
+25:   final int completedLessons;
+26:   final int totalLessons;
+27:   final double progressPercentage;
+28: 
+29:   StudentProgressSummary({
+30:     required this.studentId,
+31:     required this.studentName,
+32:     required this.courseId,
+33:     required this.courseTitle,
+34:     required this.completedLessons,
+35:     required this.totalLessons,
+36:     required this.progressPercentage,
+37:   });
+38: 
+39:   factory StudentProgressSummary.calculate({
+40:     required Map<String, dynamic> student,
+41:     required Map<String, dynamic> course,
+42:     required int completed,
+43:     required int total,
+44:   }) {
+45:     final percentage = total > 0 ? (completed / total) * 100.0 : 0.0;
+46:     return StudentProgressSummary(
+47:       studentId: student['id'],
+48:       studentName: student['full_name'] ?? 'Inconnu',
+49:       courseId: course['id'],
+50:       courseTitle: course['title'] ?? '',
+51:       completedLessons: completed,
+52:       totalLessons: total,
+53:       progressPercentage: percentage.clamp(0.0, 100.0),
+54:     );
+55:   }
+56: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">13</span></div>
+  </div>
+
+  <!-- ==================== PAGE 14 : MESSAGERIE TEMPS RÉEL ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">MESSAGERIE INSTANTANÉE TEMPS RÉEL</div>
+      <div class="page-subtitle">Section 11 sur 16 : abonnements WebSockets et isolation des canaux</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Canal WebSocket</span></div>
+        <div class="card-desc">Supabase Realtime sur<br>table direct_messages</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Tri et Non Lus</span></div>
+        <div class="card-desc">Filtre sur messages non lus<br>et tri chronologique</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Sécurité RLS</span></div>
+        <div class="card-desc">Seuls émetteur et récepteur<br>accèdent au contenu</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Réponse Directe</span></div>
+        <div class="card-desc">Envoi instantané répercuté<br>sur Evolve School</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Abonnement temps réel :</strong> Le contrôleur souscrit à <code>PostgresChangeEvent.insert</code> pour actualiser la boîte de réception.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Filtrage efficace :</strong> Permet d'isoler en un clic les discussions avec des messages en attente de réponse.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Confidentialité des échanges :</strong> Protégée par les règles RLS de <code>20260930203100_student_teacher_messaging.sql</code>.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Synchronisation avec le site :</strong> La réponse envoyée depuis le Staff apparaît sur le portail étudiant en temps réel.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">RÈGLES D'ISOLATION DES COMMUNICATIONS</div>
+      <div class="rules-content">
+        <p>Un étudiant ne peut initier de message qu'avec un formateur d'un cours auquel il est activement inscrit.</p>
+        <p>Le canal WebSocket est désinscrit proprement dans la méthode <code>dispose()</code> pour éviter les fuites mémoire.</p>
+        <p>Les conversations sont initialisées dès le premier message transmis par l'élève depuis Evolve School.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/screens/messages_screen.dart</span>
+        <span class="code-lines">Lignes 20-43</span>
+      </div>
+      <pre class="code-content"><code>20: @override
+21: void initState() {
+22:   super.initState();
+23:   _loadConversations();
+24:   _messagesChannel = _supabase
+25:       .channel('staff_direct_messages_inbox')
+26:       .onPostgresChanges(
+27:         event: PostgresChangeEvent.insert,
+28:         schema: 'public',
+29:         table: 'direct_messages',
+30:         callback: (_) {
+31:           if (mounted) _loadConversations(showLoading: false);
+32:         },
+33:       )
+34:       .subscribe();
+35: }
+36: 
+37: @override
+38: void dispose() {
+39:   if (_messagesChannel != null) {
+40:     _supabase.removeChannel(_messagesChannel!);
+41:   }
+42:   super.dispose();
+43: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">14</span></div>
+  </div>
+
+  <!-- ==================== PAGE 15 : GESTION DES UTILISATEURS ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">GESTION UTILISATEURS ET RBAC</div>
+      <div class="page-subtitle">Section 12 sur 16 : administration des profils et invitations</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Catalogue Profils</span></div>
+        <div class="card-desc">Edge Function admin-users<br>avec recherche complète</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Changement Rôle</span></div>
+        <div class="card-desc">admin_update_profile_role<br>via procédure stockée</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Invitation Admin</span></div>
+        <div class="card-desc">Edge Function invite-admin<br>avec e-mail d'activation</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Garde Verrouillage</span></div>
+        <div class="card-desc">Dernier admin protégé<br>et anti-auto-rétrogradation</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Listing sécurisé :</strong> L'Edge Function <code>admin-users</code> contourne le RLS utilisateur tout en validant le JWT admin.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Modification de privilèges :</strong> Seuls les rôles <code>student</code>, <code>teacher</code> et <code>admin</code> sont supportés.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Invitation par courriel :</strong> Envoie une invitation Supabase Auth créant un compte admin dès acceptation.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Protection de stabilité :</strong> La base interdit formellement de retirer les droits du dernier administrateur.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">RÈGLE CRITIQUE D'ADMINISTRATION DES RÔLES</div>
+      <div class="rules-content">
+        <p>Un administrateur ne peut jamais rétrograder son propre compte (protection contre l'auto-exclusion).</p>
+        <p>La mise à jour de rôle applique un verrou de table PostgreSQL pour éliminer toute condition de course critique.</p>
+        <p>L'écran <code>UsersManagementScreen</code> est strictement masqué aux utilisateurs n'ayant pas le rôle <code>admin</code>.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">supabase/migrations/20261003_secure_profile_role_management.sql</span>
+        <span class="code-lines">Lignes 50-70</span>
+      </div>
+      <pre class="code-content"><code>50: IF p_new_role IS NULL OR p_new_role NOT IN ('student', 'teacher', 'admin') THEN
+51:   RAISE EXCEPTION 'Unsupported profile role' USING ERRCODE = '22023';
+52: END IF;
+53: 
+54: IF NOT EXISTS (
+55:   SELECT 1 FROM public.profiles AS actor
+56:   WHERE actor.id = p_actor_id AND actor.role = 'admin'
+57: ) THEN
+58:   RAISE EXCEPTION 'Administrator access required' USING ERRCODE = '42501';
+59: END IF;
+60: 
+61: IF p_actor_id = p_target_user_id AND p_new_role <> 'admin' THEN
+62:   RAISE EXCEPTION 'Administrators cannot remove their own admin access'
+63:     USING ERRCODE = '42501';
+64: END IF;
+65: 
+66: LOCK TABLE public.profiles IN SHARE ROW EXCLUSIVE MODE;</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">15</span></div>
+  </div>
+
+  <!-- ==================== PAGE 16 : MODULE FINANCIER DZD ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">MODULE FINANCIER ET REVENUS</div>
+      <div class="page-subtitle">Section 13 sur 16 : réconciliation, dépenses et remboursements</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Revenus Réels DZD</span></div>
+        <div class="card-desc">Montants conservés au<br>moment du paiement</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Anciens Paiements</span></div>
+        <div class="card-desc">Signalés à part pour éviter<br>toute extrapolation fausse</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Dépenses Exploitation</span></div>
+        <div class="card-desc">Saisie manuelle des frais<br>serveurs et prestations</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Remboursements</span></div>
+        <div class="card-desc">Obligatoirement liés à un<br>enrollment_id payé</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Réconciliation des recettes :</strong> Calculé sur la base exacte des montants perçus via Chargily Pay en Dinars (DZD).</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Intégrité historique :</strong> Les anciens paiements sans montant conservé ne sont pas estimés au prix catalogue actuel.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Grand livre des écritures :</strong> Table <code>admin_financial_entries</code> pour enregistrer les charges et ajustements.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Garde-fou de remboursement :</strong> La base refuse tout remboursement supérieur au montant initialement versé.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">RÈGLES COMPTABLES ET RIGUEUR MONÉTAIRE</div>
+      <div class="rules-content">
+        <p>Les montants monétaires sont stockés sous forme d'unités mineures (centimes) pour écarter toute erreur d'arrondi.</p>
+        <p>Les alertes financières signalent : baisse anormale des encaissements, pic d'inscriptions en attente et désistements.</p>
+        <p>Les écritures ne constituent pas un bilan comptable fiscal (les frais bancaires Chargily ne sont pas déduits automatiquement).</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">supabase/migrations/20261004_financial_reporting.sql</span>
+        <span class="code-lines">Lignes 8-22</span>
+      </div>
+      <pre class="code-content"><code>8: create table if not exists public.admin_financial_entries (
+9:   id uuid primary key default gen_random_uuid(),
+10:   entry_type text not null check (entry_type in ('expense', 'refund')),
+11:   amount_minor_units bigint not null check (amount_minor_units > 0),
+12:   category text not null check (length(trim(category)) between 1 and 80),
+13:   note text not null check (length(trim(note)) between 1 and 500),
+14:   occurred_at timestamptz not null,
+15:   enrollment_id uuid references public.enrollments(id) on delete restrict,
+16:   recorded_by uuid not null references public.profiles(id) on delete restrict,
+17:   created_at timestamptz not null default now(),
+18:   constraint admin_financial_entry_enrollment_type check (
+19:     (entry_type = 'expense' and enrollment_id is null)
+20:     or (entry_type = 'refund' and enrollment_id is not null)
+21:   )
+22: );</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">16</span></div>
+  </div>
+
+  <!-- ==================== PAGE 17 : EXPORTATION DES RAPPORTS ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">EXPORTATION RAPPORTS FINANCIERS</div>
+      <div class="page-subtitle">Section 13.2 sur 16 : téléchargement CSV multiplateforme</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Compilation Dart</span></div>
+        <div class="card-desc">Imports conditionnels :<br>_web.dart vs _stub.dart</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Export Web</span></div>
+        <div class="card-desc">Blob UTF-8 + BOM et<br>balise a HTML temporaire</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Export Desktop</span></div>
+        <div class="card-desc">Écriture sur disque local<br>sans dépendance HTML</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Compatibilité Excel</span></div>
+        <div class="card-desc">Préfixe \uFEFF pour<br>encodage UTF-8 sous Windows</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Architecture conditionnelle :</strong> Le fichier <code>financial_report_download.dart</code> sélectionne la cible selon la plateforme.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Implémentation Web :</strong> Génère un Object URL via <code>web.Blob</code>, clique sur l'ancre et révoque l'URL après 1 seconde.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Implémentation Windows / Tests :</strong> Utilise un stub sécurisé pour ne pas provoquer d'erreur lors des tests CLI.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Formatage du CSV :</strong> Intègre le Byte Order Mark (BOM) UTF-8 pour un affichage parfait dans Microsoft Excel.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">RÈGLE D'ISOLATION DES PACKAGES WEB</div>
+      <div class="rules-content">
+        <p>Ne jamais importer <code>dart:html</code> ou <code>package:web</code> directement dans un écran commun.</p>
+        <p>Tout accès au Document Object Model du navigateur doit être encapsulé derrière une façade Dart conditionnelle.</p>
+        <p>Cette règle garantit que <code>flutter test</code> et le build Windows natif s'exécutent sans erreur de compilation.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/services/financial_report_download_web.dart</span>
+        <span class="code-lines">Lignes 1-26</span>
+      </div>
+      <pre class="code-content"><code>1: import 'dart:async';
+2: import 'dart:js_interop';
+3: 
+4: import 'package:web/web.dart' as web;
+5: 
+6: bool downloadFinancialReport(String filename, String csv) {
+7:   final blob = web.Blob(
+8:     ['\uFEFF$csv'.toJS].toJS,
+9:     web.BlobPropertyBag(type: 'text/csv;charset=utf-8'),
+10:   );
+11:   final url = web.URL.createObjectURL(blob);
+12:   final anchor = web.HTMLAnchorElement()
+13:     ..href = url
+14:     ..download = filename
+15:     ..style.display = 'none';
+16:   final body = web.document.body;
+17:   if (body == null) {
+18:     web.URL.revokeObjectURL(url);
+19:     return false;
+20:   }
+21:   body.append(anchor);
+22:   anchor.click();
+23:   anchor.remove();
+24:   Timer(const Duration(seconds: 1), () => web.URL.revokeObjectURL(url));
+25:   return true;
+26: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">17</span></div>
+  </div>
+
+  <!-- ==================== PAGE 18 : EDGE FUNCTIONS DÉDIÉES ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">EDGE FUNCTIONS DÉDIÉES</div>
+      <div class="page-subtitle">Section 14 sur 16 : architecture des endpoints Deno/TypeScript</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">admin-dashboard</span></div>
+        <div class="card-desc">Agrégation globale des<br>statistiques et cours</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">admin-users</span></div>
+        <div class="card-desc">Listing sécurisé des<br>utilisateurs et rôles</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">admin-financials</span></div>
+        <div class="card-desc">Consolidation du grand<br>livre et écritures DZD</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">admin-moderation</span></div>
+        <div class="card-desc">Approbation et publication<br>des cours staff</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Agrégation d'accueil (admin-dashboard) :</strong> Calcule les inscriptions, revenus et volumes sans exposer les tables privées.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Gestion des utilisateurs (admin-users) :</strong> Pagination et recherche plein texte sans risque de fuite de données personnelles.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Grand livre financier (admin-financials) :</strong> Isole la lecture comptable et vérifie les montants de remboursement.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Modération (admin-courses & moderation) :</strong> Permet aux administrateurs de relire l'intégralité des brouillons.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">SÉCURISATION DES MICROSERVICES DENO</div>
+      <div class="rules-content">
+        <p>Chaque Edge Function vérifie le token Bearer JWT de l'utilisateur appelant dès réception de la requête HTTP.</p>
+        <p>Si le rôle dans <code>public.profiles</code> n'est pas <code>admin</code>, la fonction répond immédiatement par un code HTTP 403 Forbidden.</p>
+        <p>Les variables sensibles (<code>SUPABASE_SERVICE_ROLE_KEY</code>) ne sont accessibles qu'à l'environnement d'exécution du serveur Deno.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">lib/services/admin_analytics_service.dart</span>
+        <span class="code-lines">Lignes 1-32</span>
+      </div>
+      <pre class="code-content"><code>1: import 'package:supabase_flutter/supabase_flutter.dart';
+2: 
+3: class AdminAnalyticsService {
+4:   static Future<Map<String, dynamic>> fetchAnalytics() async {
+5:     final supabase = Supabase.instance.client;
+6:     final session = supabase.auth.currentSession;
+7:     if (session == null) throw Exception('Session non authentifiée');
+8: 
+9:     final response = await supabase.functions.invoke(
+10:       'admin-analytics',
+11:       headers: {
+12:         'Authorization': 'Bearer ${session.accessToken}',
+13:       },
+14:     );
+15: 
+16:     if (response.status != 200) {
+17:       throw Exception('Erreur analytique: ${response.status}');
+18:     }
+19: 
+20:     final data = response.data;
+21:     if (data is! Map<String, dynamic>) {
+22:       throw FormatException('Réponse analytique invalide');
+23:     }
+24:     return data;
+25:   }
+26: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">18</span></div>
+  </div>
+
+  <!-- ==================== PAGE 19 : SÉCURITÉ RLS ET POLITIQUES POSTGRES ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">SÉCURITÉ RLS ET MODÈLE MENACE</div>
+      <div class="page-subtitle">Section 15 sur 16 : triggers de protection et politiques de restriction</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Zéro Rôle Modifiable</span></div>
+        <div class="card-desc">Trigger guard_profile_role<br>bloque toute élévation</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">RLS sur les Cours</span></div>
+        <div class="card-desc">Formateur : ses cours<br>Admin : lecture intégrale</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">RLS Inscriptions</span></div>
+        <div class="card-desc">L'étudiant ne peut pas<br>s'auto-passer en 'paid'</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">RLS Messagerie</span></div>
+        <div class="card-desc">Restreint aux participants<br>de la discussion active</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Blocage de l'élévation de privilèges :</strong> Un compte authentifié ne peut pas s'attribuer le rôle <code>admin</code> via un UPDATE.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Isolation des cours :</strong> La politique SELECT restreint l'édition des brouillons au formateur propriétaire.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Inviolabilité des paiements :</strong> Seul le webhook serveur ou une fonction admin peut inscrire <code>payment_status = 'paid'</code>.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Cloisonnement des messages :</strong> La lecture et l'écriture exigent que l'UUID appelant corresponde à l'émetteur ou au destinataire.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">MODÈLE DE MENACE ET DÉFENSE EN PROFONDEUR</div>
+      <div class="rules-content">
+        <p>Le client Flutter est considéré comme non fiable : aucune validation de sécurité critique ne repose sur du code Dart.</p>
+        <p>La base de données PostgreSQL applique systématiquement le principe de moindre privilège via Row-Level Security.</p>
+        <p>Toute violation de règle RLS se traduit par un retour vide silencieux ou une exception SQL immédiate (erreur 42501).</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">supabase/migrations/20261003_secure_profile_role_management.sql</span>
+        <span class="code-lines">Lignes 1-29</span>
+      </div>
+      <pre class="code-content"><code>1: CREATE OR REPLACE FUNCTION public.guard_profile_role_assignments()
+2: RETURNS trigger
+3: LANGUAGE plpgsql
+4: AS $$
+5: BEGIN
+6:   IF auth.role() = 'authenticated' THEN
+7:     IF TG_OP = 'INSERT' AND NEW.role IS DISTINCT FROM 'student' THEN
+8:       RAISE EXCEPTION 'New accounts cannot assign their own privileged role'
+9:         USING ERRCODE = '42501';
+10:     END IF;
+11: 
+12:     IF TG_OP = 'UPDATE' AND NEW.role IS DISTINCT FROM OLD.role THEN
+13:       RAISE EXCEPTION 'Profile roles can only be changed by an administrator'
+14:         USING ERRCODE = '42501';
+15:     END IF;
+16:   END IF;
+17: 
+18:   RETURN NEW;
+19: END;
+20: $$;
+21: 
+22: DROP TRIGGER IF EXISTS guard_profile_role_assignments ON public.profiles;
+23: 
+24: CREATE TRIGGER guard_profile_role_assignments
+25:   BEFORE INSERT OR UPDATE OF role
+26:   ON public.profiles
+27:   FOR EACH ROW
+28:   EXECUTE FUNCTION public.guard_profile_role_assignments();</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">19</span></div>
+  </div>
+
+  <!-- ==================== PAGE 20 : ASSURANCE QUALITÉ ET TESTS ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">ASSURANCE QUALITÉ ET TESTS</div>
+      <div class="page-subtitle">Section 16 sur 16 : tests unitaires, de widget et scripts CI</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Vérification Lockfile</span></div>
+        <div class="card-desc">pub get --enforce-lockfile<br>reproductibilité stricte</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Formatage Dart</span></div>
+        <div class="card-desc">dart format officiel<br>sans écart toléré</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Analyse Statique</span></div>
+        <div class="card-desc">flutter analyze<br>zéro warning fatal</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Tests Automatisés</span></div>
+        <div class="card-desc">flutter test : modèles,<br>revenus et widgets</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Lockfile inviolable :</strong> Empêche toute dérive silencieuse de version de package lors des compilations distantes.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Formatage standard :</strong> Exécution de <code>dart format</code> sur <code>lib/</code> et <code>test/</code> imposée avant tout commit.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Linter strict :</strong> <code>flutter_lints 5.0.0</code> activé avec interdiction de variables inutilisées et de typages lâches.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Tests non-régression :</strong> Couvrent le calcul de complétion des devoirs, la réconciliation DZD et le login.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">DISPOSITIFS D'ASSURANCE QUALITÉ CI</div>
+      <div class="rules-content">
+        <p>Le pipeline GitHub Actions échoue immédiatement si une seule vérification du script <code>check.sh</code> renvoie un statut non nul.</p>
+        <p>Il est strictement interdit de bypasser les avertissements du compilateur Dart avec des commentaires d'ignorance sans justification.</p>
+        <p>Avant d'ouvrir une Pull Request, le développeur doit valider localement l'exécution de <code>bash scripts/check.sh</code>.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">scripts/check.sh</span>
+        <span class="code-lines">Lignes 1-21</span>
+      </div>
+      <pre class="code-content"><code>1: #!/usr/bin/env bash
+2: set -euo pipefail
+3: 
+4: cd "$(dirname "${BASH_SOURCE[0]}")/.."
+5: 
+6: echo "Resolving Flutter dependencies from pubspec.lock..."
+7: flutter pub get --enforce-lockfile
+8: 
+9: echo "Checking Dart formatting..."
+10: dart format --output=none --set-exit-if-changed lib test
+11: 
+12: echo "Analyzing Flutter application..."
+17: flutter analyze --no-pub --no-fatal-infos
+18: 
+19: echo "Running Flutter tests..."
+20: flutter test --no-pub
+21: </code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">20</span></div>
+  </div>
+
+  <!-- ==================== PAGE 21 : DÉPLOIEMENT PRODUCTION ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">BUILDS ET DÉPLOIEMENT PRODUCTION</div>
+      <div class="page-subtitle">Section 16.2 sur 16 : release Web Vercel et runner Windows</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Hébergement Vercel</span></div>
+        <div class="card-desc">scripts/build.sh installe<br>Flutter SDK 3.35.7</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Routing SPA Web</span></div>
+        <div class="card-desc">vercel.json : réécriture<br>de toutes routes vers /</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">En-têtes Cache</span></div>
+        <div class="card-desc">no-cache sur index.html<br>et service worker</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Exécutable Win32</span></div>
+        <div class="card-desc">flutter build windows<br>release native desktop</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Environnement Vercel :</strong> Le script <code>build.sh</code> télécharge automatiquement le tag officiel Flutter et compile en Web Release.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Redirections SPA :</strong> <code>vercel.json</code> réécrit toutes les requêtes d'URL vers <code>index.html</code> pour préserver le routeur.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Protection contre le cache obsolète :</strong> <code>no-store</code> forcé sur <code>version.json</code> et <code>flutter_service_worker.js</code>.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Binaire natif Windows :</strong> Produit un exécutable portable Win32 haute performance dans <code>build/windows/x64/</code>.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">DIRECTIVES DE DÉPLOIEMENT</div>
+      <div class="rules-content">
+        <p>Ne jamais intégrer de variables d'environnement secrètes dans les variables publiques de build Vercel.</p>
+        <p>Le déploiement web produit une arborescence statique servie depuis le dossier <code>build/web</code>.</p>
+        <p>En cas de régression en production, le panneau Vercel permet d'effectuer un rollback instantané en 1 clic.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">vercel.json</span>
+        <span class="code-lines">Lignes 1-22</span>
+      </div>
+      <pre class="code-content"><code>1: {
+2:   "buildCommand": "bash scripts/build.sh",
+3:   "outputDirectory": "build/web",
+4:   "rewrites": [
+5:     {
+6:       "source": "/(.*)",
+7:       "destination": "/index.html"
+8:     }
+9:   ],
+10:   "headers": [
+11:     {
+12:       "source": "/(index.html|flutter_service_worker.js|version.json)",
+13:       "headers": [
+14:         {
+15:           "key": "Cache-Control",
+16:           "value": "no-cache, no-store, must-revalidate"
+17:         }
+18:       ]
+19:     }
+20:   ]
+21: }</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">21</span></div>
+  </div>
+
+  <!-- ==================== PAGE 22 : DÉBOGAGE ET MAINTENANCE ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">DÉBOGAGE ET EXPLOITATION</div>
+      <div class="page-subtitle">Section 16.3 sur 16 : diagnostic opérationnel et FAQ des erreurs</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Accès non autorisé</span></div>
+        <div class="card-desc">Profil sans rôle ou<br>rôle student configuré</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Chargement infini</span></div>
+        <div class="card-desc">Edge Function manquante<br>ou session expirée</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Échec Export CSV</span></div>
+        <div class="card-desc">Blocage pop-up du<br>navigateur sur le web</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Brouillons bloqués</span></div>
+        <div class="card-desc">Nécessite la validation<br>d'un compte admin</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Erreur "You are not authorized" :</strong> Vérifier la table <code>public.profiles</code> et attribuer <code>teacher</code> ou <code>admin</code>.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Blocage écran Dashboard :</strong> Consulter les logs Supabase Edge Functions ; vérifier que les secrets JWT sont valides.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Téléchargement inactif :</strong> Vérifier les autorisations de téléchargement automatique sur le domaine de l'application.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Cours invisible aux étudiants :</strong> Un formateur ne peut pas auto-publier son cours ; l'admin doit l'approuver.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">PROTOCOLE DE DÉPANNAGE EN PRODUCTION</div>
+      <div class="rules-content">
+        <p>En cas de signalement d'incident, vérifier en priorité la connectivité Supabase et la validité du token utilisateur.</p>
+        <p>Ne jamais communiquer de token d'authentification ou d'identifiant sensible dans un ticket de support.</p>
+        <p>Utiliser le bouton <strong>Refresh</strong> de chaque écran pour forcer la synchronisation avec la base PostgreSQL.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">README.md</span>
+        <span class="code-lines">Lignes 111-128</span>
+      </div>
+      <pre class="code-content"><code>111: ### Si un écran ne charge pas
+112: 
+113: 1. Vérifiez votre connexion Internet et votre session.
+114: 2. Utilisez **Refresh** ou **Try again** sur l’écran.
+115: 3. Vérifiez que le rôle du compte et les données existent dans Supabase.
+116: 4. Si l’erreur persiste, transmettez son texte à l’administrateur ; ne collez
+117:    jamais de clé secrète ou de jeton d’authentification dans un ticket.
+118: 
+119: ## Développement et vérifications
+120: 
+121: Avant de proposer des changements :
+122: 
+123: ```bash
+124: dart format lib test
+125: flutter analyze --no-pub --no-fatal-infos
+126: flutter test --no-pub
+127: ```</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">22</span></div>
+  </div>
+
+  <!-- ==================== PAGE 23 : AUDIT DU CODE ET ÉCARTS ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">AUDIT DU CODE ET ÉCARTS</div>
+      <div class="page-subtitle">Section 16.4 sur 16 : dette technique et préconisations de refactorisation</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">1</span> <span class="card-title">Fichiers denses</span></div>
+        <div class="card-desc">dashboard_screen.dart<br>(1 205 lignes à scinder)</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">2</span> <span class="card-title">Gestion d'état</span></div>
+        <div class="card-desc">StatefulWidgets locaux ;<br>évolutif vers Provider/Bloc</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">3</span> <span class="card-title">Copies de sauvegarde</span></div>
+        <div class="card-desc">workshops_screen.dart.bak<br>à purger du dépôt</div>
+      </div>
+      <div class="card-col">
+        <div class="card-num-box"><span class="num-circle">4</span> <span class="card-title">Conformité Globale</span></div>
+        <div class="card-desc">Zéro fuite de secret,<br>sound null-safety 100 %</div>
+      </div>
+    </div>
+
+    <div class="points-list">
+      <div class="point-item">
+        <span class="point-num">1</span>
+        <div class="point-text"><strong>Volume de code par écran :</strong> <code>dashboard_screen.dart</code> (1 205 l.) et <code>assignments_screen.dart</code> (881 l.) doivent être découpés en sous-widgets.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">2</span>
+        <div class="point-text"><strong>Gestion d'état global :</strong> La gestion par <code>setState</code> locale est robuste mais gagnerait à adopter un pattern Riverpod ou Bloc.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">3</span>
+        <div class="point-text"><strong>Nettoyage des fichiers temporaires :</strong> Supprimer le fichier <code>workshops_screen.dart.bak</code> non suivi.</div>
+      </div>
+      <div class="point-item">
+        <span class="point-num">4</span>
+        <div class="point-text"><strong>Sécurité et intégrité :</strong> Audit de sécurité 100 % conforme : aucune clé <code>service_role</code> ni secret bancaire dans le code.</div>
+      </div>
+    </div>
+
+    <div class="rules-box">
+      <div class="rules-title">RECOMMANDATIONS D'ÉVOLUTION TECHNIQUE</div>
+      <div class="rules-content">
+        <p>Découper les écrans de plus de 500 lignes en composants spécialisés réutilisables dans un dossier <code>lib/widgets/</code>.</p>
+        <p>Ajouter une suite de tests d'intégration simulant le parcours complet de modération et de notation des devoirs.</p>
+        <p>Maintenir la compatibilité stricte avec les futures versions majeures de Flutter et du package <code>supabase_flutter</code>.</p>
+      </div>
+    </div>
+
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-filename">analysis_options.yaml</span>
+        <span class="code-lines">Lignes 1-28</span>
+      </div>
+      <pre class="code-content"><code>1: include: package:flutter_lints/flutter.yaml
+2: 
+3: linter:
+4:   rules:
+5:     # Encourage de bonnes pratiques de lisibilité et de sécurité
+6:     avoid_print: true
+7:     prefer_const_constructors: true
+8:     prefer_const_literals_to_create_immutables: true
+9:     unawaited_futures: true
+10:     cancel_subscriptions: true
+11: 
+12: analyzer:
+13:   errors:
+14:     missing_required_param: error
+15:     missing_return: error
+16:     todo: ignore
+17:   exclude:
+18:     - "build/**"
+19:     - "**/*.g.dart"</code></pre>
+    </div>
+
+    <div class="page-footer"><span class="page-num">23</span></div>
+  </div>
+
+  <!-- ==================== PAGE 24 : INDEX DES FICHIERS (PARTIE 1) ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">INDEX EXHAUSTIF DES FICHIERS (1)</div>
+      <div class="page-subtitle">Annexe A · Section 16 sur 16 : cartographie lib/screens et lib/services</div>
+    </div>
+
+    <table class="index-table">
+      <thead>
+        <tr>
+          <th style="width: 50%;">Chemin du fichier</th>
+          <th style="width: 50%;">Rôle & Responsabilité</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>lib/main.dart</code></td><td>Point d'entrée, initialisation Supabase et runApp()</td></tr>
+        <tr><td><code>lib/screens/login_screen.dart</code></td><td>Authentification e-mail / mot de passe et contrôle de rôle RBAC</td></tr>
+        <tr><td><code>lib/screens/dashboard_screen.dart</code></td><td>Tableau de bord adaptatif (compteurs formateur vs admin)</td></tr>
+        <tr><td><code>lib/screens/courses_screen.dart</code></td><td>Catalogue de cours, filtres de modération et actions admin</td></tr>
+        <tr><td><code>lib/screens/create_course_screen.dart</code></td><td>Formulaire de création d'un cours (titre, prix DZD, domaine)</td></tr>
+        <tr><td><code>lib/screens/edit_course_screen.dart</code></td><td>Modification des métadonnées, prix et statut d'un cours existant</td></tr>
+        <tr><td><code>lib/screens/course_details_screen.dart</code></td><td>Fiche détaillée du cours, liste des leçons et accès aux pièces jointes</td></tr>
+        <tr><td><code>lib/screens/course_files_screen.dart</code></td><td>Upload et gestion des fichiers de cours sur Supabase Storage</td></tr>
+        <tr><td><code>lib/screens/formations_screen.dart</code></td><td>Gestion des parcours de formation (séries de cours structurés)</td></tr>
+        <tr><td><code>lib/screens/lessons_screen.dart</code></td><td>Listing global des leçons, ordonnancement et ajout</td></tr>
+        <tr><td><code>lib/screens/lesson_details_screen.dart</code></td><td>Détail d'une leçon individuelle, durée et vidéo</td></tr>
+        <tr><td><code>lib/screens/assignments_screen.dart</code></td><td>Création de devoirs, révision des soumissions et notation</td></tr>
+        <tr><td><code>lib/screens/student_progress_screen.dart</code></td><td>Suivi de la progression des apprenants et taux de complétion</td></tr>
+        <tr><td><code>lib/screens/messages_screen.dart</code></td><td>Messagerie instantanée bidirectionnelle en direct avec les élèves</td></tr>
+        <tr><td><code>lib/screens/workshops_screen.dart</code></td><td>Gestion des ateliers pratiques immersifs et des masterclasses</td></tr>
+        <tr><td><code>lib/screens/workshop_content_screen.dart</code></td><td>Gestion du contenu multimédia et livrables de workshops</td></tr>
+        <tr><td><code>lib/screens/users_management_screen.dart</code></td><td>Administration des comptes, modification de rôles et invitations</td></tr>
+        <tr><td><code>lib/screens/revenue_screen.dart</code></td><td>Grand livre des revenus en DZD, dépenses et remboursements</td></tr>
+        <tr><td><code>lib/screens/admin_analytics_screen.dart</code></td><td>Statistiques avancées, graphiques de tendance et cohortes</td></tr>
+        <tr><td><code>lib/services/admin_dashboard_service.dart</code></td><td>Consommation et validation des métriques du dashboard admin</td></tr>
+        <tr><td><code>lib/services/admin_analytics_service.dart</code></td><td>Extraction des séries chronologiques via Edge Function</td></tr>
+        <tr><td><code>lib/services/admin_courses_service.dart</code></td><td>Chargement de l'ensemble des cours pour examen administratif</td></tr>
+        <tr><td><code>lib/services/admin_course_moderation_service.dart</code></td><td>Validation, publication et retrait de cours par les admins</td></tr>
+      </tbody>
+    </table>
+
+    <div class="page-footer"><span class="page-num">24</span></div>
+  </div>
+
+  <!-- ==================== PAGE 25 : INDEX DES FICHIERS (PARTIE 2) ==================== -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">INDEX EXHAUSTIF DES FICHIERS (2)</div>
+      <div class="page-subtitle">Annexe B · Section 16 sur 16 · Fin du guide technique, réf. EV-2026-STAFF</div>
+    </div>
+
+    <table class="index-table">
+      <thead>
+        <tr>
+          <th style="width: 50%;">Chemin du fichier</th>
+          <th style="width: 50%;">Rôle & Responsabilité</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>lib/services/admin_users_service.dart</code></td><td>Appel de l'Edge Function admin-users pour gestion des profils</td></tr>
+        <tr><td><code>lib/services/admin_financial_service.dart</code></td><td>Gestion du grand livre, saisie de dépenses et remboursements</td></tr>
+        <tr><td><code>lib/services/financial_report_download.dart</code></td><td>Interface conditionnelle de téléchargement de rapport CSV</td></tr>
+        <tr><td><code>lib/services/financial_report_download_web.dart</code></td><td>Implémentation Web via Blob et W3C JS Interop (package:web)</td></tr>
+        <tr><td><code>lib/services/financial_report_download_stub.dart</code></td><td>Implémentation Desktop/Test sans dépendance au navigateur</td></tr>
+        <tr><td><code>lib/services/assignment_service.dart</code></td><td>Modèles et opérations CRUD devoirs, soumissions et notation</td></tr>
+        <tr><td><code>lib/services/formation_service.dart</code></td><td>Modélisation et requêtes des parcours (course_series)</td></tr>
+        <tr><td><code>lib/services/revenue_service.dart</code></td><td>Formatage des montants monétaires DZD et réconciliation</td></tr>
+        <tr><td><code>lib/services/student_progress_service.dart</code></td><td>Calculs de taux de complétion par étudiant et par cours</td></tr>
+        <tr><td><code>lib/services/workshop_service.dart</code></td><td>Gestion des masterclasses et inscriptions aux workshops</td></tr>
+        <tr><td><code>lib/services/workshop_content_service.dart</code></td><td>Gestion du contenu interactif des ateliers</td></tr>
+        <tr><td><code>lib/services/analytics_service.dart</code></td><td>Comptage direct des cours, leçons et formations</td></tr>
+        <tr><td><code>supabase/migrations/20260920_production_resilience_indexes.sql</code></td><td>Index d'optimisation de performance pour la production</td></tr>
+        <tr><td><code>supabase/migrations/20260924_orders_and_rls_hardening.sql</code></td><td>Renforcement des politiques RLS sur les commandes</td></tr>
+        <tr><td><code>supabase/migrations/20260930203100_student_teacher_messaging.sql</code></td><td>Tables et politiques RLS de la messagerie instantanée</td></tr>
+        <tr><td><code>supabase/migrations/20261003_secure_profile_role_management.sql</code></td><td>Trigger anti-élévation et procédure admin_update_profile_role</td></tr>
+        <tr><td><code>supabase/migrations/20261004_financial_reporting.sql</code></td><td>Table admin_financial_entries et écritures comptables</td></tr>
+        <tr><td><code>supabase/migrations/20261005_course_series_rls.sql</code></td><td>Sécurisation RLS des parcours et séries de cours</td></tr>
+        <tr><td><code>supabase/migrations/20261012_guard_course_publication.sql</code></td><td>Trigger SQL interdisant la publication de cours sans rôle admin</td></tr>
+        <tr><td><code>supabase/migrations/20261012_chargily_webhook_audit_log.sql</code></td><td>Table d'audit log et traçabilité des transactions Chargily Pay</td></tr>
+        <tr><td><code>scripts/check.sh</code></td><td>Script CI de contrôle : lockfile, format, analyse et tests</td></tr>
+        <tr><td><code>scripts/build.sh</code></td><td>Script de build Vercel : installation du SDK Flutter et build web</td></tr>
+        <tr><td><code>test/admin_dashboard_service_test.dart</code></td><td>Tests unitaires de robustesse du parser de tableau de bord</td></tr>
+        <tr><td><code>test/revenue_service_test.dart</code></td><td>Tests du formatage des devises DZD et des règles de grand livre</td></tr>
+        <tr><td><code>test/widget_test.dart</code></td><td>Test du formulaire de login et validation des mots de passe</td></tr>
+      </tbody>
+    </table>
+
+    <div class="page-footer"><span class="page-num">25</span></div>
+  </div>
+
+</body>
+</html>

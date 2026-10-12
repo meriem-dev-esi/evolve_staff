@@ -5,9 +5,18 @@ import 'package:evolve_staff/screens/login_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  const supabaseUrl = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: 'https://ficrjocgrcghxrdpwbbw.supabase.co',
+  );
+  const supabasePublishableKey = String.fromEnvironment(
+    'SUPABASE_PUBLISHABLE_KEY',
+    defaultValue: 'sb_publishable_4iPyk0EvUvT2OfKrDbhQxA_bvOhv2P2',
+  );
+
   await Supabase.initialize(
-    url: 'https://ficrjocgrcghxrdpwbbw.supabase.co',
-    publishableKey: 'sb_publishable_4iPyk0EvUvT2OfKrDbhQxA_bvOhv2P2',
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
   );
 
   runApp(const EvolveStaffApp());

@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Guide Technique — Evolve Staff</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 16mm 14mm 16mm 14mm;
+      @bottom-right {
+        content: counter(page);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.55;
+      color: #1e293b;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Couverture */
+    .cover-page {
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100vh;
+      min-height: 250mm;
+      padding: 40px 20px 20px 20px;
+    }
+
+    .cover-header {
+      border-left: 6px solid #84cc16;
+      padding-left: 20px;
+    }
+
+    .brand-tag {
+      display: inline-block;
+      font-size: 9pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #4d7c0f;
+      background: #ecfccb;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .cover-title {
+      font-size: 32pt;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #0f172a;
+      margin: 0 0 10px 0;
+    }
+
+    .cover-subtitle {
+      font-size: 14pt;
+      font-weight: 400;
+      color: #64748b;
+      margin: 0;
+    }
+
+    .cover-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 40px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .meta-value {
+      font-size: 10pt;
+      font-weight: 600;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+
+    .cover-footer {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5pt;
+      color: #94a3b8;
+    }
+
+    /* Headings */
+    h1, h2, h3, h4 {
+      color: #0f172a;
+      font-weight: 700;
+      margin-top: 1.6em;
+      margin-bottom: 0.6em;
+    }
+
+    h1 {
+      font-size: 18pt;
+      border-bottom: 2px solid #84cc16;
+      padding-bottom: 6px;
+      page-break-before: always;
+      margin-top: 0;
+    }
+
+    h1:first-of-type {
+      page-break-before: auto;
+    }
+
+    h2 {
+      font-size: 13pt;
+      border-left: 4px solid #84cc16;
+      padding-left: 10px;
+      margin-top: 1.4em;
+    }
+
+    h3 {
+      font-size: 11pt;
+      color: #334155;
+      margin-top: 1.2em;
+    }
+
+    p {
+      margin: 0 0 0.8em 0;
+    }
+
+    /* Callouts & Alertes */
+    .callout {
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 9.5pt;
+      border-left: 4px solid #84cc16;
+      background: #f7fee7;
+      color: #365314;
+    }
+
+    .callout-info {
+      border-left-color: #3b82f6;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    .callout-warn {
+      border-left-color: #f59e0b;
+      background: #fffbeb;
+      color: #92400e;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 8.5pt;
+      break-inside: avoid;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 2px solid #cbd5e1;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    /* Badges & Tags */
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 7.5pt;
+      font-weight: 600;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+
+    /* Code & Blocs de code */
+    code {
+      font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+      font-size: 8.5pt;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 4px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 8px;
+      overflow-x: hidden;
+      font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+      font-size: 8pt;
+      line-height: 1.45;
+      margin: 12px 0;
+      break-inside: avoid;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      border: none;
+      padding: 0;
+    }
+
+    /* Diagrammes et Boîtes SVG */
+    .diagram-container {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+      break-inside: avoid;
+    }
+
+    .diagram-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Arborescence Visuelle */
+    .tree-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7.8pt;
+      line-height: 1.4;
+      break-inside: avoid;
+    }
+
+    .tree-box .folder { color: #84cc16; font-weight: 600; }
+    .tree-box .comment { color: #64748b; font-style: italic; }
+
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dotted #cbd5e1;
+      padding: 6px 0;
+      font-size: 9.5pt;
+    }
+
+    .toc-title {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COUVERTURE -->
+  <div class="cover-page">
+    <div class="cover-header">
+      <span class="brand-tag">Evolve Academy • Documentation Officielle</span>
+      <h1 class="cover-title">Guide Technique<br>Evolve Staff</h1>
+      <p class="cover-subtitle">Architecture logicielle, modèle de données, sécurité et exploitation du portail d'administration</p>
+    </div>
+
+    <div class="cover-card">
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">Système & Application</span>
+          <span class="meta-value">Evolve Staff Dashboard (v1.0.0+1)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Framework Client</span>
+          <span class="meta-value">Flutter 3.35.x (Dart ^3.9.2)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Backend & Persistance</span>
+          <span class="meta-value">Supabase (PostgreSQL 15, RLS, Storage, Auth)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Cibles de Déploiement</span>
+          <span class="meta-value">Flutter Web (Vercel) & Windows Desktop (Win32)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Gestion des Rôles (RBAC)</span>
+          <span class="meta-value"><code>admin</code> • <code>teacher</code> • <code>student</code></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Date d'édition</span>
+          <span class="meta-value">Octobre 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <span>Evolve Academy Engineering Team</span>
+      <span>Confidentialité : Usage Interne & Staff Autorisé</span>
+    </div>
+  </div>
+
+  <!-- TABLE DES MATIERES -->
+  <h1>Sommaire Exécutif</h1>
+  <div style="margin: 25px 0;">
+    <div class="toc-item"><span class="toc-title">1. Introduction et Périmètre</span><span>Section 1</span></div>
+    <div class="toc-item"><span class="toc-title">2. Architecture Globale du Système</span><span>Section 2</span></div>
+    <div class="toc-item"><span class="toc-title">3. Arborescence et Structure du Projet Flutter</span><span>Section 3</span></div>
+    <div class="toc-item"><span class="toc-title">4. Couche Métier et Services Frontend</span><span>Section 4</span></div>
+    <div class="toc-item"><span class="toc-title">5. Architecture Backend & Modèle de Données (Supabase)</span><span>Section 5</span></div>
+    <div class="toc-item"><span class="toc-title">6. Sécurité, Rôles et RLS (Row-Level Security)</span><span>Section 6</span></div>
+    <div class="toc-item"><span class="toc-title">7. Supabase Edge Functions (Deno / TypeScript)</span><span>Section 7</span></div>
+    <div class="toc-item"><span class="toc-title">8. Messagerie Temps Réel Étudiant-Formateur</span><span>Section 8</span></div>
+    <div class="toc-item"><span class="toc-title">9. Module Financier et Reporting Comptable</span><span>Section 9</span></div>
+    <div class="toc-item"><span class="toc-title">10. Tests et Qualité Logicielle</span><span>Section 10</span></div>
+    <div class="toc-item"><span class="toc-title">11. Build, Déploiement et CI/CD</span><span>Section 11</span></div>
+    <div class="toc-item"><span class="toc-title">12. Maintenance, Dépannage et Exploitation</span><span>Section 12</span></div>
+  </div>
+
+  <div class="callout callout-info">
+    <strong>Note d'architecture :</strong> L'application Evolve Staff fonctionne en symbiose avec l'application web étudiante (<code>evolve-web</code>). Elles partagent le même projet Supabase, ses politiques de sécurité RLS et ses tables relationnelles.
+  </div>
+
+  <!-- SECTION 1 -->
+  <h1>1. Introduction et Périmètre</h1>
+  <p><strong>Evolve Staff</strong> est la plateforme de gestion centralisée dédiée aux équipes pédagogiques (formateurs) et aux administrateurs généraux d'Evolve Academy. L'application fournit les interfaces nécessaires pour créer les contenus éducatifs, modérer le catalogue, animer les formations, encadrer les étudiants et piloter la santé financière de l'école.</p>
+
+  <h2>Périmètre et Acteurs Cibles</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Rôle</th>
+        <th style="width: 35%;">Missions Principales</th>
+        <th style="width: 40%;">Droits & Accès Système</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Formateur</strong><br><span class="badge badge-blue">teacher</span></td>
+        <td>Gestion des cours, ajout de leçons et fichiers, création et correction de devoirs, suivi de la progression des inscrits, réponse aux questions des apprenants.</td>
+        <td>Accès restreint à ses propres cours créés, aux soumissions d'étudiants rattachées et à ses conversations directes.</td>
+      </tr>
+      <tr>
+        <td><strong>Administrateur</strong><br><span class="badge badge-purple">admin</span></td>
+        <td>Modération et validation des cours (mise en ligne), gestion des utilisateurs (rôles, invitations), grand livre financier, suivi des indicateurs clés et de la trésorerie.</td>
+        <td>Accès étendu via Edge Functions sécurisées avec contournement contrôlé du RLS pour les analyses globales.</td>
+      </tr>
+      <tr>
+        <td><strong>Étudiant</strong><br><span class="badge badge-amber">student</span></td>
+        <td>Apprentissage via le portail étudiant web (Evolve School).</td>
+        <td><strong style="color: #dc2626;">Refusé sur Evolve Staff</strong> : rejet immédiat à la connexion après validation du rôle.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 2 -->
+  <h1>2. Architecture Globale du Système</h1>
+  <p>L'architecture repose sur une séparation claire entre un client riche multiplateforme (Flutter) et un Backend-as-a-Service hautement sécurisé (Supabase PostgreSQL).</p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 700 280" width="100%" height="280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+        </marker>
+      </defs>
+
+      <!-- Clients -->
+      <rect x="20" y="30" width="180" height="60" rx="8" fill="#ecfccb" stroke="#84cc16" stroke-width="2"/>
+      <text x="110" y="58" font-family="Inter" font-size="12" font-weight="bold" fill="#365314" text-anchor="middle">Flutter Web</text>
+      <text x="110" y="75" font-family="Inter" font-size="9" fill="#4d7c0f" text-anchor="middle">SPA hébergée sur Vercel</text>
+
+      <rect x="20" y="110" width="180" height="60" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+      <text x="110" y="138" font-family="Inter" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">Windows Desktop</text>
+      <text x="110" y="155" font-family="Inter" font-size="9" fill="#64748b" text-anchor="middle">Exécutable Natif Win32</text>
+
+      <!-- Supabase Box -->
+      <rect x="260" y="20" width="220" height="240" rx="12" fill="#f8fafc" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4"/>
+      <text x="370" y="42" font-family="Inter" font-size="11" font-weight="bold" fill="#1e40af" text-anchor="middle">SUPABASE PLATFORM</text>
+
+      <rect x="280" y="55" width="180" height="35" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+      <text x="370" y="77" font-family="Inter" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">Supabase Auth (JWT)</text>
+
+      <rect x="280" y="100" width="180" height="35" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+      <text x="370" y="122" font-family="Inter" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">PostgreSQL + RLS Rules</text>
+
+      <rect x="280" y="145" width="180" height="35" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+      <text x="370" y="167" font-family="Inter" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">Storage (Fichiers & Médias)</text>
+
+      <rect x="280" y="190" width="180" height="35" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+      <text x="370" y="212" font-family="Inter" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">Edge Functions (Deno / TS)</text>
+
+      <rect x="280" y="235" width="180" height="20" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
+      <text x="370" y="249" font-family="Inter" font-size="8.5" font-weight="600" fill="#1e293b" text-anchor="middle">Realtime WebSocket Feed</text>
+
+      <!-- Écosystème Externe -->
+      <rect x="520" y="45" width="160" height="50" rx="8" fill="#fdf2f8" stroke="#f472b6" stroke-width="2"/>
+      <text x="600" y="70" font-family="Inter" font-size="11" font-weight="bold" fill="#831843" text-anchor="middle">Evolve School Web</text>
+      <text x="600" y="85" font-family="Inter" font-size="8.5" fill="#9d174d" text-anchor="middle">Portail Étudiants (Next.js)</text>
+
+      <rect x="520" y="130" width="160" height="50" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+      <text x="600" y="155" font-family="Inter" font-size="11" font-weight="bold" fill="#78350f" text-anchor="middle">Chargily Pay Gateway</text>
+      <text x="600" y="170" font-family="Inter" font-size="8.5" fill="#92400e" text-anchor="middle">Webhooks Paiement DZD</text>
+
+      <!-- Lignes de liaison -->
+      <line x1="200" y1="60" x2="260" y2="60" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="200" y1="140" x2="260" y2="140" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="480" y1="70" x2="520" y2="70" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="520" y1="155" x2="480" y2="155" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+    </svg>
+  </div>
+
+  <h2>Règles de Cloisonnement et d'Intégrité</h2>
+  <ul>
+    <li><strong>Clé Publique Uniquement :</strong> Le code client Flutter n'initialise que la clé anonyme publique Supabase (<code>publishableKey</code>). La clé <code>service_role</code> est rigoureusement proscrite de l'application cliente.</li>
+    <li><strong>Chiffrement en Transit :</strong> Toutes les communications utilisent TLS 1.3 (HTTPS) et WebSockets sécurisés (WSS) pour le temps réel.</li>
+    <li><strong>Traitement des Données Sensibles :</strong> Les transactions financières et modifications de droits sont déléguées à la base PostgreSQL ou aux Edge Functions pour empêcher tout contournement côté client.</li>
+  </ul>
+
+  <!-- SECTION 3 -->
+  <h1>3. Arborescence et Structure du Projet Flutter</h1>
+  <p>Le projet adopte une séparation stricte entre les composants visuels (<code>screens</code>) et la logique applicative / accès aux données (<code>services</code>).</p>
+
+  <div class="tree-box">
+<span class="folder">lib/</span>
+├── main.dart                          <span class="comment"># Initialisation Supabase et amorçage MaterialApp</span>
+├── <span class="folder">screens/</span>
+│   ├── login_screen.dart              <span class="comment"># Authentification et contrôle de rôle d'accès</span>
+│   ├── dashboard_screen.dart          <span class="comment"># Menu principal adaptatif (selon teacher/admin)</span>
+│   ├── courses_screen.dart            <span class="comment"># Liste des cours, filtres et actions de modération</span>
+│   ├── create_course_screen.dart      <span class="comment"># Formulaire de création d'un cours</span>
+│   ├── edit_course_screen.dart        <span class="comment"># Édition des métadonnées, prix DZD et statut</span>
+│   ├── course_details_screen.dart     <span class="comment"># Vue détaillée, organisation des leçons et ressources</span>
+│   ├── course_files_screen.dart       <span class="comment"># Upload et gestion des pièces jointes Storage</span>
+│   ├── formations_screen.dart         <span class="comment"># Regroupement des cours en parcours structurés</span>
+│   ├── lessons_screen.dart            <span class="comment"># Gestion transversale des leçons et vidéos</span>
+│   ├── assignments_screen.dart        <span class="comment"># Gestion des devoirs, notation et feedbacks</span>
+│   ├── student_progress_screen.dart   <span class="comment"># Suivi de progression et taux de complétion</span>
+│   ├── messages_screen.dart           <span class="comment"># Messagerie instantanée en direct avec les étudiants</span>
+│   ├── workshops_screen.dart          <span class="comment"># Gestion des ateliers pratiques interactifs</span>
+│   ├── workshop_content_screen.dart   <span class="comment"># Contenu détaillé des workshops</span>
+│   ├── users_management_screen.dart   <span class="comment"># Admin : Gestion des rôles, listing et invitations</span>
+│   ├── revenue_screen.dart            <span class="comment"># Admin : Suivi des revenus DZD et écritures comptables</span>
+│   └── admin_analytics_screen.dart    <span class="comment"># Admin : Statistiques avancées et graphiques</span>
+└── <span class="folder">services/</span>
+    ├── admin_dashboard_service.dart   <span class="comment"># Parsing des métriques globales admin</span>
+    ├── admin_analytics_service.dart   <span class="comment"># Extraction des séries temporelles et tendances</span>
+    ├── admin_courses_service.dart     <span class="comment"># Chargement sans restriction des cours admin</span>
+    ├── admin_course_moderation_service.dart <span class="comment"># Validation / publication de cours</span>
+    ├── admin_users_service.dart       <span class="comment"># Gestion sécurisée des comptes utilisateurs</span>
+    ├── admin_financial_service.dart   <span class="comment"># Grand livre, dépenses, remboursements et totaux DZD</span>
+    ├── financial_report_download*.dart<span class="comment"># Exports conditionnels CSV (Web vs Desktop)</span>
+    ├── assignment_service.dart        <span class="comment"># Opérations CRUD devoirs et soumissions</span>
+    ├── student_progress_service.dart  <span class="comment"># Calculs d'avancement par apprenant</span>
+    └── formation_service.dart         <span class="comment"># Gestion des entités parcours / séries</span>
+  </div>
+
+  <!-- SECTION 4 -->
+  <h1>4. Couche Métier et Services Frontend</h1>
+
+  <h2>Responsabilités et Implémentations Clés</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Service</th>
+        <th style="width: 35%;">Responsabilité Technique</th>
+        <th style="width: 40%;">Gestion d'Erreur & Résilience</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>AdminDashboardService</code></td>
+        <td>Désérialise la réponse JSON de l'Edge Function <code>admin-dashboard</code>. Vérifie l'intégrité des compteurs numériques (rejet strict des valeurs négatives ou manquantes).</td>
+        <td>Lance une <code>FormatException</code> explicite en cas de payload altéré, forçant l'affichage d'un état d'erreur propre sur l'écran.</td>
+      </tr>
+      <tr>
+        <td><code>AdminFinancialService</code></td>
+        <td>Interroge l'endpoint <code>admin-financials</code>, gère la liste des écritures comptables, les dépenses et les remboursements.</td>
+        <td>Garantit la stricte liaison des remboursements à un <code>enrollment_id</code> valide et contrôle la cohérence des montants en centimes DZD.</td>
+      </tr>
+      <tr>
+        <td><code>FinancialReportDownload</code></td>
+        <td>Fournit une interface uniforme pour exporter le grand livre mensuel en CSV. Utilise des imports conditionnels Dart :
+        <ul>
+          <li><code>_web.dart</code> : Création de Blob et lien <code>&lt;a download&gt;</code>.</li>
+          <li><code>_stub.dart</code> : Implémentation non-web pour le desktop et les tests.</li>
+        </ul></td>
+        <td>Évite les erreurs de compilation liées à <code>dart:html</code> lors des builds natifs Windows ou lors de l'exécution des tests unitaires en ligne de commande.</td>
+      </tr>
+      <tr>
+        <td><code>AssignmentService</code></td>
+        <td>Gère le cycle de vie d'un devoir : création, association aux cours, récupération des dépôts étudiants, saisie de note et commentaire.</td>
+        <td>Intègre un mode fallback avec données témoins si la base est en cours d'initialisation.</td>
+      </tr>
+      <tr>
+        <td><code>StudentProgressService</code></td>
+        <td>Agrège les enregistrements de la table <code>lesson_progress</code> et calcule le pourcentage d'avancement réel par cours.</td>
+        <td>Évite les divisions par zéro si un cours ne contient pas encore de leçons publiées.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 5 -->
+  <h1>5. Architecture Backend & Modèle de Données (Supabase)</h1>
+
+  <h2>Schéma Relationnel Entité-Association (ERD)</h2>
+  <div class="diagram-container">
+    <svg viewBox="0 0 700 290" width="100%" height="290" xmlns="http://www.w3.org/2000/svg">
+      <!-- Profiles -->
+      <rect x="20" y="20" width="180" height="110" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+      <rect x="20" y="20" width="180" height="26" rx="8" fill="#0f172a"/>
+      <text x="110" y="38" font-family="Inter" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">PROFILES</text>
+      <text x="30" y="60" font-family="JetBrains Mono" font-size="8.5" fill="#0f172a">PK id (uuid)</text>
+      <text x="30" y="76" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">full_name (text)</text>
+      <text x="30" y="92" font-family="JetBrains Mono" font-size="8.5" fill="#84cc16" font-weight="bold">role (text: admin/teacher)</text>
+      <text x="30" y="108" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">avatar_url, created_at</text>
+
+      <!-- Courses -->
+      <rect x="260" y="20" width="180" height="125" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+      <rect x="260" y="20" width="180" height="26" rx="8" fill="#0f172a"/>
+      <text x="350" y="38" font-family="Inter" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">COURSES</text>
+      <text x="270" y="60" font-family="JetBrains Mono" font-size="8.5" fill="#0f172a">PK id (uuid)</text>
+      <text x="270" y="76" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">FK teacher_id (uuid)</text>
+      <text x="270" y="92" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">title, description</text>
+      <text x="270" y="108" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">price_dzd (integer)</text>
+      <text x="270" y="124" font-family="JetBrains Mono" font-size="8.5" fill="#84cc16" font-weight="bold">published (boolean)</text>
+
+      <!-- Enrollments -->
+      <rect x="500" y="20" width="180" height="110" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+      <rect x="500" y="20" width="180" height="26" rx="8" fill="#0f172a"/>
+      <text x="590" y="38" font-family="Inter" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">ENROLLMENTS</text>
+      <text x="510" y="60" font-family="JetBrains Mono" font-size="8.5" fill="#0f172a">PK id (uuid)</text>
+      <text x="510" y="76" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">FK user_id, course_id</text>
+      <text x="510" y="92" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">payment_status (text)</text>
+      <text x="510" y="108" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">paid_at (timestamptz)</text>
+
+      <!-- Lessons -->
+      <rect x="260" y="165" width="180" height="105" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+      <rect x="260" y="165" width="180" height="26" rx="8" fill="#0f172a"/>
+      <text x="350" y="183" font-family="Inter" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">LESSONS</text>
+      <text x="270" y="205" font-family="JetBrains Mono" font-size="8.5" fill="#0f172a">PK id (uuid)</text>
+      <text x="270" y="221" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">FK course_id (uuid)</text>
+      <text x="270" y="237" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">title, order_index</text>
+      <text x="270" y="253" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">video_url, duration</text>
+
+      <!-- Admin Financial Entries -->
+      <rect x="500" y="150" width="180" height="120" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+      <rect x="500" y="150" width="180" height="26" rx="8" fill="#0f172a"/>
+      <text x="590" y="168" font-family="Inter" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">ADMIN_FINANCIAL_ENTRIES</text>
+      <text x="510" y="190" font-family="JetBrains Mono" font-size="8.5" fill="#0f172a">PK id (uuid)</text>
+      <text x="510" y="206" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">entry_type ('expense'|'refund')</text>
+      <text x="510" y="222" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">amount_minor_units (bigint)</text>
+      <text x="510" y="238" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">FK enrollment_id (opt)</text>
+      <text x="510" y="254" font-family="JetBrains Mono" font-size="8.5" fill="#64748b">FK recorded_by (uuid)</text>
+
+      <!-- Liens -->
+      <line x1="200" y1="50" x2="260" y2="50" stroke="#0f172a" stroke-width="1.5"/>
+      <line x1="440" y1="50" x2="500" y2="50" stroke="#0f172a" stroke-width="1.5"/>
+      <line x1="350" y1="145" x2="350" y2="165" stroke="#0f172a" stroke-width="1.5"/>
+      <line x1="590" y1="130" x2="590" y2="150" stroke="#0f172a" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <!-- SECTION 6 -->
+  <h1>6. Sécurité, Rôles et RLS (Row-Level Security)</h1>
+
+  <h2>Prévention de l'Élévation de Privilège</h2>
+  <p>Une faille classique des architectures BaaS consiste à laisser un utilisateur authentifié modifier son propre champ <code>role</code> dans sa table de profil via l'API client. Sur Evolve Academy, ce vecteur est totalement verrouillé :</p>
+
+  <pre><code>-- Trigger de protection exécuté avant insertion ou mise à jour
+CREATE OR REPLACE FUNCTION public.guard_profile_role_assignments()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF auth.role() = 'authenticated' THEN
+    IF TG_OP = 'INSERT' AND NEW.role IS DISTINCT FROM 'student' THEN
+      RAISE EXCEPTION 'New accounts cannot assign their own privileged role'
+        USING ERRCODE = '42501';
+    END IF;
+
+    IF TG_OP = 'UPDATE' AND NEW.role IS DISTINCT FROM OLD.role THEN
+      RAISE EXCEPTION 'Profile roles can only be changed by an administrator'
+        USING ERRCODE = '42501';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;</code></pre>
+
+  <h2>Fonction Sécurisée de Changement de Rôle</h2>
+  <p>Toute promotion ou rétrogradation passe obligatoirement par la procédure stockée <code>public.admin_update_profile_role</code> qui impose 3 règles de sécurité majeures :</p>
+  <ol>
+    <li><strong>Authentification Admin Requise :</strong> L'appelant doit posséder le rôle <code>admin</code> actif.</li>
+    <li><strong>Protection Anti-Suicide :</strong> Un administrateur ne peut pas rétrograder son propre compte, garantissant qu'il ne se retire pas accidentellement ses droits.</li>
+    <li><strong>Garantie du Dernier Administrateur :</strong> Un verrou de table <code>SHARE ROW EXCLUSIVE</code> empêche toute condition de concurrence qui aboutirait à un système avec 0 administrateur.</li>
+  </ol>
+
+  <!-- SECTION 7 -->
+  <h1>7. Supabase Edge Functions (Deno / TypeScript)</h1>
+  <p>Les Edge Functions fournissent une couche d'abstraction et d'orchestration pour les opérations nécessitant des droits d'administration étendus sans exposer la base brute au client.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Fonction</th>
+        <th style="width: 35%;">Rôle & Traitement</th>
+        <th style="width: 40%;">Sécurisation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>admin-dashboard</code></td>
+        <td>Agrège en une seule requête les compteurs d'utilisateurs (7 derniers jours, étudiants, formateurs, admins), les statuts de cours et les paiements en attente.</td>
+        <td>Vérifie le token JWT et le rôle admin avant de calculer les totaux.</td>
+      </tr>
+      <tr>
+        <td><code>admin-analytics</code></td>
+        <td>Génère les tendances chronologiques mensuelles des inscriptions, de la rétention et de la ventilation des revenus.</td>
+        <td>Filtrage strict des entrées et isolation des métriques sensibles.</td>
+      </tr>
+      <tr>
+        <td><code>admin-users</code></td>
+        <td>Retourne la liste paginée des comptes enregistrés avec recherche plein texte sur nom et e-mail.</td>
+        <td>Empêche la fuite de données personnelles vers des comptes non autorisés.</td>
+      </tr>
+      <tr>
+        <td><code>invite-admin</code></td>
+        <td>Déclenche l'envoi d'un e-mail d'invitation sécurisé via le système d'authentification Supabase.</td>
+        <td>Restreint aux administrateurs actifs ; configure le rôle cible dès validation de l'invitation.</td>
+      </tr>
+      <tr>
+        <td><code>admin-financials</code></td>
+        <td>Enregistre et consolide les écritures comptables du grand livre (dépenses et remboursements).</td>
+        <td>Vérifie l'existence et la validité de l'inscription remboursée.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 8 -->
+  <h1>8. Messagerie Temps Réel Étudiant-Formateur</h1>
+  <p>La messagerie permet un encadrement pédagogique direct. Les messages sont échangés via les tables <code>conversations</code> et <code>direct_messages</code> avec synchronisation instantanée bidirectionnelle.</p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 680 230" width="100%" height="230" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="m-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f172a" />
+        </marker>
+      </defs>
+      <!-- Acteurs -->
+      <rect x="30" y="20" width="130" height="35" rx="6" fill="#ecfccb" stroke="#84cc16" stroke-width="1.5"/>
+      <text x="95" y="42" font-family="Inter" font-size="10" font-weight="bold" fill="#365314" text-anchor="middle">Étudiant (School)</text>
+
+      <rect x="270" y="20" width="140" height="35" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="340" y="42" font-family="Inter" font-size="10" font-weight="bold" fill="#1e40af" text-anchor="middle">Supabase DB (WSS)</text>
+
+      <rect x="520" y="20" width="130" height="35" rx="6" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+      <text x="585" y="42" font-family="Inter" font-size="10" font-weight="bold" fill="#0f172a" text-anchor="middle">Formateur (Staff)</text>
+
+      <!-- Lignes de vie -->
+      <line x1="95" y1="55" x2="95" y2="210" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="3"/>
+      <line x1="340" y1="55" x2="340" y2="210" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="3"/>
+      <line x1="585" y1="55" x2="585" y2="210" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="3"/>
+
+      <!-- Échanges -->
+      <line x1="95" y1="90" x2="340" y2="90" stroke="#0f172a" stroke-width="1.2" marker-end="url(#m-arrow)"/>
+      <text x="215" y="82" font-family="Inter" font-size="8.5" fill="#475569" text-anchor="middle">1. Envoi question (direct_messages)</text>
+
+      <line x1="340" y1="120" x2="585" y2="120" stroke="#0f172a" stroke-width="1.2" marker-end="url(#m-arrow)"/>
+      <text x="460" y="112" font-family="Inter" font-size="8.5" fill="#475569" text-anchor="middle">2. Push WebSocket Realtime</text>
+
+      <line x1="585" y1="160" x2="340" y2="160" stroke="#0f172a" stroke-width="1.2" marker-end="url(#m-arrow)"/>
+      <text x="460" y="152" font-family="Inter" font-size="8.5" fill="#475569" text-anchor="middle">3. Envoi réponse pédagogique</text>
+
+      <line x1="340" y1="190" x2="95" y2="190" stroke="#0f172a" stroke-width="1.2" marker-end="url(#m-arrow)"/>
+      <text x="215" y="182" font-family="Inter" font-size="8.5" fill="#475569" text-anchor="middle">4. Notification en direct sur l'app Web</text>
+    </svg>
+  </div>
+
+  <!-- SECTION 9 -->
+  <h1>9. Module Financier et Reporting Comptable</h1>
+  <p>Le module de trésorerie (<code>revenue_screen.dart</code>) est réservé aux administrateurs pour le suivi rigoureux des recettes générées via la passerelle de paiement Chargily Pay.</p>
+
+  <h2>Règles de Réconciliation et Traçabilité</h2>
+  <ul>
+    <li><strong>Devise Unifiée :</strong> Tous les montants sont libellés en <strong>Dinar Algérien (DZD)</strong> et manipulés sous forme d'entiers ou unités mineures pour éliminer les erreurs d'arrondi à virgule flottante.</li>
+    <li><strong>Isolement des Anciens Paiements :</strong> Tout paiement historique dépourvu de montant enregistré ou horodaté avant la mise en place des webhooks n'est pas interpolé à partir du prix catalogue actuel du cours. Ces écritures sont isolées avec la mention <em>"paiements historiques sans montant"</em>.</li>
+    <li><strong>Saisie des Écritures Manuelles :</strong> Les administrateurs peuvent renseigner les charges opérationnelles (serveurs, publicité) et les remboursements étudiants. Le grand livre calcule ainsi le mouvement net exact.</li>
+  </ul>
+
+  <!-- SECTION 10 -->
+  <h1>10. Tests et Qualité Logicielle</h1>
+  <p>L'intégrité de l'application est vérifiée par une batterie de tests unitaires et de validation d'interface :</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 30%;">Fichier de Test</th>
+        <th style="width: 70%;">Scénarios Validés</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>widget_test.dart</code></td>
+        <td>Validation du formulaire de connexion, détection d'e-mail invalide, toggle de visibilité du mot de passe.</td>
+      </tr>
+      <tr>
+        <td><code>admin_dashboard_service_test.dart</code></td>
+        <td>Parsing des métriques d'accueil, rejet des compteurs négatifs, gestion des réponses réseau vides.</td>
+      </tr>
+      <tr>
+        <td><code>admin_financial_service_test.dart</code></td>
+        <td>Vérification des calculs de solde, validation de l'affectation obligatoire d'un remboursement à une inscription.</td>
+      </tr>
+      <tr>
+        <td><code>revenue_service_test.dart</code></td>
+        <td>Formatage monétaire en DZD, validation des séparateurs de milliers, traitement des cas limites.</td>
+      </tr>
+      <tr>
+        <td><code>admin_users_service_test.dart</code></td>
+        <td>Vérification de la conformité du modèle utilisateur et détection des anomalies de rôle.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 11 -->
+  <h1>11. Build, Déploiement et CI/CD</h1>
+
+  <h2>Intégration Continue (GitHub Actions)</h2>
+  <p>Le script <code>scripts/check.sh</code> est invoqué à chaque modification de code pour valider la qualité logicielle :</p>
+  <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+# 1. Vérification stricte des dépendances
+flutter pub get --enforce-lockfile
+
+# 2. Contrôle du formatage de code
+dart format --output=none --set-exit-if-changed lib test
+
+# 3. Analyse statique
+flutter analyze --no-pub --no-fatal-infos
+
+# 4. Exécution de la suite de tests
+flutter test --no-pub</code></pre>
+
+  <h2>Déploiement Flutter Web sur Vercel</h2>
+  <p>Le fichier <code>vercel.json</code> pilote le build via <code>scripts/build.sh</code> en téléchargeant le SDK Flutter 3.35.7 dans l'environnement conteneurisé. Les en-têtes HTTP désactivent la mise en cache sur <code>index.html</code>, <code>version.json</code> et <code>flutter_service_worker.js</code> pour éviter que les utilisateurs ne conservent une version obsolète de l'application.</p>
+
+  <!-- SECTION 12 -->
+  <h1>12. Maintenance, Dépannage et Exploitation</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Problème Rencontré</th>
+        <th style="width: 35%;">Cause Racine Probable</th>
+        <th style="width: 40%;">Résolution Recommandée</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Accès refusé au login : <em>"You are not authorized"</em></td>
+        <td>Le profil utilisateur possède le rôle <code>student</code> ou la colonne <code>role</code> est nulle.</td>
+        <td>Un administrateur doit changer le rôle vers <code>teacher</code> ou <code>admin</code> dans Supabase.</td>
+      </tr>
+      <tr>
+        <td>Liste d'utilisateurs ou finances bloquée en chargement</td>
+        <td>L'Edge Function correspondante n'est pas déployée ou le jeton JWT a expiré.</td>
+        <td>Consulter les journaux de logs dans le dashboard Supabase et redéployer la fonction.</td>
+      </tr>
+      <tr>
+        <td>L'export CSV ne se déclenche pas sous navigateur</td>
+        <td>Politique stricte du navigateur bloquant les téléchargements automatiques.</td>
+        <td>Autoriser les pop-ups et téléchargements pour l'URL de l'application staff.</td>
+      </tr>
+      <tr>
+        <td>Nouveau cours bloqué en statut brouillon</td>
+        <td>Un formateur ne peut pas s'auto-valider.</td>
+        <td>Un administrateur doit approuver et publier le cours depuis la section modération.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warn" style="margin-top: 30px;">
+    <strong>Règle de sécurité impérative :</strong> Ne jamais intégrer de clé <code>service_role</code> ou de secret d'API Chargily dans les variables d'environnement de l'application Flutter. Toutes les opérations privilégiées doivent continuer à transiter par les Edge Functions ou les fonctions PostgreSQL avec <code>SECURITY DEFINER</code>.
+  </div>
+
+</body>
+</html>
